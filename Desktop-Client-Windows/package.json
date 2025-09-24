@@ -1,12 +1,15 @@
 {
-  "name": "whisperlive-windows-client",
+  "name": "whisperlive-desktop-client",
   "version": "1.0.0",
-  "description": "Windows desktop client for WhisperLive real-time STT with translation",
+  "description": "Cross-platform desktop client for WhisperLive real-time STT with translation",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "build": "electron-builder",
-    "dist": "electron-builder --publish=never"
+    "dist": "electron-builder --publish=never",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:all": "electron-builder --win --mac"
   },
   "dependencies": {
     "electron": "^28.0.0",
@@ -16,18 +19,61 @@
     "electron-builder": "^24.6.4"
   },
   "build": {
-    "appId": "com.example.whisperlive.windows",
-    "productName": "WhisperLive Windows Client",
+    "appId": "com.example.whisperlive.desktop",
+    "productName": "WhisperLive Client",
     "directories": {
-      "output": "dist"
+      "output": "dist",
+      "buildResources": "build"
     },
     "files": [
       "**/*",
-      "!node_modules/**/*"
+      "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+      "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
+      "!**/node_modules/*.d.ts",
+      "!**/node_modules/.bin",
+      "!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}",
+      "!.editorconfig",
+      "!**/._*",
+      "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}",
+      "!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}",
+      "!**/{appveyor.yml,.travis.yml,circle.yml}",
+      "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}"
     ],
+    "mac": {
+      "target": "dmg",
+      "icon": "build/icon.icns",
+      "category": "public.app-category.utilities",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "signingHashAlgorithms": [
+        "sha256"
+      ],
+      "notarize": {
+        "teamId": "YOUR_TEAM_ID"
+      }
+    },
+    "dmg": {
+      "sign": false,
+      "icon": false
+    },
     "win": {
       "target": "nsis",
-      "icon": "icon.ico"
-    }
+      "icon": "build/icon.ico",
+      "signingHashAlgorithms": [
+        "sha256"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "publish": [
+      {
+        "provider": "generic",
+        "url": "https://github.com/yourusername/whisperlive/releases"
+      }
+    ]
   }
 }

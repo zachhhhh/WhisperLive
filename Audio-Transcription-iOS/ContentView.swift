@@ -11,15 +11,39 @@ import SwiftUI
 struct RecordingView: View {
     var onDismiss: () -> Void
     @StateObject private var recordingViewModel = AudioViewModel()
+    @StateObject private var iapManager = IAPManager()
     @State private var showSubmitView = false
+    @State private var showPremiumSheet = false
 
     var body: some View {
         VStack(spacing: 0) {
-            // Translation controls
+            // Server config (only when not recording)
             if !recordingViewModel.isRecording {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Server Configuration")
+                        .font(.headline)
+                    HStack {
+                        Text("Host:")
+                        TextField("localhost", text: $recordingViewModel.host)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                    }
+                    HStack {
+                        Text("Port:")
+                        TextField("9090", text: $recordingViewModel.port)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .keyboardType(.numberPad)
+                    }
+                }
+                .padding()
+                .background(Color.gray.opacity(0.1))
+                .cornerRadius(8)
+                .padding(.horizontal)
+                
+                // Translation controls
                 VStack(alignment: .leading, spacing: 8) {
                     Toggle("Enable Translation", isOn: $recordingViewModel.enableTranslation)
                         .toggleStyle(SwitchToggleStyle(tint: .blue))
+                        .disabled(!iapManager.isPremium())
                     if recordingViewModel.enableTranslation {
                         Picker("Target Language", selection: $recordingViewModel.targetLanguage) {
                             Text("English").tag("en")
@@ -29,12 +53,27 @@ struct RecordingView: View {
                             Text("Japanese").tag("ja")
                         }
                         .pickerStyle(MenuPickerStyle())
+                        .disabled(!iapManager.isPremium())
+                    }
+                    if !iapManager.isPremium() {
+                        Text("Upgrade to Premium to enable translation")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
                     }
                 }
                 .padding()
                 .background(Color.gray.opacity(0.1))
                 .cornerRadius(8)
                 .padding(.horizontal)
+
+                // Premium Button (if not premium)
+                if iapManager.purchaseState != .purchased {
+                    Button("Go Premium (Remove Ads)") {
+                        showPremiumSheet = true
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .padding()
+                }
             }
 
             // Stop button (only visible when recording)
@@ -115,6 +154,8 @@ struct RecordingView: View {
             .padding(.bottom, 40)
         }
         .padding(.top)
+        // Add bottom padding when ads are visible so content isn’t covered by the banner
+        .padding(.bottom, iapManager.purchaseState != .purchased ? 50 : 0)
         .background(Color(.systemBackground))
         .overlay(
             Group {
@@ -130,8 +171,49 @@ struct RecordingView: View {
             }
         )
         .sheet(isPresented: $showSubmitView) {
-            //anotherView
+            FinalTranscriptView(
+                transcription: recordingViewModel.finalScript,
+                translation: recordingViewModel.finalTranslatedScript,
+                onDismiss: {
+                    showSubmitView = false
+                    onDismiss()
+                }
+            )
         }
+        .sheet(isPresented: $showPremiumSheet) {
+            VStack(spacing: 16) {
+                if let product = iapManager.products.first {
+                    Text("Remove Ads for \(product.displayPrice)")
+                        .font(.headline)
+                    Button("Purchase") {
+                        iapManager.purchasePremium()
+                        showPremiumSheet = false
+                    }
+                    .buttonStyle(.borderedProminent)
+                    Button("Restore Purchases") {
+                        Task {
+                            await iapManager.restorePurchases()
+                        }
+                        showPremiumSheet = false
+                    }
+                    .buttonStyle(.bordered)
+                } else {
+                    ProgressView("Loading...")
+                }
+                Button("Cancel") {
+                    showPremiumSheet = false
+                }
+            }
+            .padding()
+        }
+        .overlay(
+            Group {
+                if iapManager.purchaseState != .purchased {
+                    BannerAdView(adUnitID: "ca-app-pub-3940256099942544/6300978111")
+                        .frame(height: 50)
+                }
+            }, alignment: .bottom
+        )
     }
 }
 
@@ -140,4 +222,53 @@ struct RecordingView: View {
         // Dummy dismiss handler
         print("RecordingView dismissed")
     }
+}
+
+/// Simple view to show final transcript and translation.
+struct FinalTranscriptView: View {
+    let transcription: String
+    let translation: String
+    let onDismiss: () -> Void
+    
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Final Transcription")
+                        .font(.headline)
+                    Text(transcription)
+                        .padding()
+                        .background(Color.gray.opacity(0.1))
+                        .cornerRadius(8)
+                    
+                    if !translation.isEmpty {
+                        Text("Translation")
+                            .font(.headline)
+                        Text(translation)
+                            .padding()
+                            .background(Color.blue.opacity(0.1))
+                            .cornerRadius(8)
+                    }
+                }
+                .padding()
+            }
+            .navigationTitle("Session Complete")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        onDismiss()
+                    }
+                }
+            }
+        }
+    }
+}
+
+#Preview("Final Transcript") {
+    FinalTranscriptView(
+        transcription: "Sample transcription text here.",
+        translation: "Sample translation text here.",
+        onDismiss: {}
+    )
 }

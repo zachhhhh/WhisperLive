@@ -1,0 +1,52 @@
+name: WhisperLive-iOS-Client
+options:
+  bundleIdPrefix: com.example
+configs:
+  Debug: debug
+  Release: release
+schemes:
+  WhisperLive-iOS-Client:
+    build:
+      targets:
+        WhisperLive-iOS-Client: all
+    test:
+      targets:
+        WhisperLive-iOS-ClientTests: [debug]
+targets:
+  WhisperLive-iOS-Client:
+    type: application
+    platform: iOS
+    deploymentTarget: "15.0"
+    sources:
+      - path: .
+        excludes:
+          - "**/Pods/**"
+          - "**/*.xcworkspace"
+          - "**/*.xcodeproj"
+    settings:
+      base:
+        INFOPLIST_FILE: WhisperLive-iOS-Client-Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.whisperlive
+        CURRENT_PROJECT_VERSION: 1
+        MARKETING_VERSION: 1.0.0
+      configs:
+        Debug:
+          PRODUCT_NAME: $(TARGET_NAME)
+        Release:
+          PRODUCT_NAME: $(TARGET_NAME)
+    info:
+      path: WhisperLive-iOS-Client-Info.plist
+      properties:
+        CFBundleShortVersionString: 1.0.0
+        CFBundleVersion: 1
+        GADApplicationIdentifier: ca-app-pub-3940256099942544~1458002511 # Test; replace with live
+        NSMicrophoneUsageDescription: "WhisperLive needs microphone access to capture your voice for live transcription."
+        NSSpeechRecognitionUsageDescription: "WhisperLive analyzes your speech in real time to produce transcripts."
+  WhisperLive-iOS-ClientTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "15.0"
+    sources:
+      - path: .
+    dependencies:
+      - target: WhisperLive-iOS-Client

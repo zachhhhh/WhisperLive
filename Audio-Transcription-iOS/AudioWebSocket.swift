@@ -1,10 +1,9 @@
 //
-//  RecordingViewModel.swift
-//  Lecture2Quiz
+//  AudioWebSocket.swift
+//  WhisperLive-iOS-Client
 //
 //  Created by ParkMazorika on 4/27/25.
 //
-
 
 import Foundation
 
@@ -51,22 +50,34 @@ class AudioWebSocket: NSObject, URLSessionWebSocketDelegate {
             return
         }
 
-        let socketURL = port == 443 || port == 80
-            ? "wss://\(host)"
-            : "wss://\(host):\(port)"
-
-        guard let url = URL(string: socketURL) else {
-            print("Invalid URL: \(socketURL)")
+        guard let url = makeURL() else {
+            print("Invalid WebSocket URL.")
             return
         }
 
         webSocketTask = urlSession.webSocketTask(with: url)
         webSocketTask?.resume()
-        print("Attempting WebSocket connection: \(socketURL)")
+        print("Attempting WebSocket connection: \(url.absoluteString)")
 
         listen()
         sendInitialJSON()
         startPing()
+    }
+
+    /// Builds a proper ws:// or wss:// URL depending on port or provided scheme.
+    private func makeURL() -> URL? {
+        // If the user typed a full URL with scheme, honor it.
+        if host.hasPrefix("ws://") || host.hasPrefix("wss://") {
+            return URL(string: host)
+        }
+
+        // Default: use wss for 443, ws for everything else (e.g. 9090)
+        let scheme = (port == 443) ? "wss" : "ws"
+        var urlString = "\(scheme)://\(host)"
+        if port != 80 && port != 443 {
+            urlString += ":\(port)"
+        }
+        return URL(string: urlString)
     }
 
     /// Sends the initial JSON payload to identify and configure the session.

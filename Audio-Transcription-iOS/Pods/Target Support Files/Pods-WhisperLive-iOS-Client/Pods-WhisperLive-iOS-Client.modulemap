@@ -1,0 +1,6 @@
+framework module Pods_WhisperLive_iOS_Client {
+  umbrella header "Pods-WhisperLive-iOS-Client-umbrella.h"
+
+  export *
+  module * { export * }
+}

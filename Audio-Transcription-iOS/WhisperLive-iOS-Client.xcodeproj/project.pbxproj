@@ -1,0 +1,835 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 63;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		01805A4150BE545BD540B968 /* GoogleUserMessagingPlatform-xcframeworks.sh in Resources */ = {isa = PBXBuildFile; fileRef = E9F8F8CBF6C38AC3F2D8AB7A /* GoogleUserMessagingPlatform-xcframeworks.sh */; };
+		02284C66F95DAE75BC5368B9 /* Google-Mobile-Ads-SDK-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B63D8BFB2D540EA66417086 /* Google-Mobile-Ads-SDK-Info.plist */; };
+		1117097747A570D3FCDDE36A /* ResourceBundle-GoogleMobileAdsResources-Google-Mobile-Ads-SDK-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3D4903A31A6ABE77B91613BD /* ResourceBundle-GoogleMobileAdsResources-Google-Mobile-Ads-SDK-Info.plist */; };
+		12E6484485ED733263BA84D8 /* IAPManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BA5F9655D7914BDE8A417B6 /* IAPManager.swift */; };
+		172C980BBB2FD4ABB025C11F /* GoogleMobileAds.xcframework in Resources */ = {isa = PBXBuildFile; fileRef = 1D5DED3EEB48C34E03DC9037 /* GoogleMobileAds.xcframework */; };
+		172E779203B6C4FF412C8A0A /* Google-Mobile-Ads-SDK-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 8B41610631BEB60A7EC3127F /* Google-Mobile-Ads-SDK-dummy.m */; };
+		180468E53FC7F263A35D9788 /* WhisperLive_iOS_ClientApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98BFA8892B79CC9304451004 /* WhisperLive_iOS_ClientApp.swift */; };
+		190A759B14637668A0F369AA /* Pods-WhisperLive-iOS-ClientTests-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = C5E56BA2DAD0BC5977345F7D /* Pods-WhisperLive-iOS-ClientTests-dummy.m */; };
+		211E678C5F71F61434A1C9B2 /* AudioWebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4AD83FB265F4390D3587631 /* AudioWebSocket.swift */; };
+		28172CF67B199313BFCD0DE2 /* UserMessagingPlatform.xcframework in Resources */ = {isa = PBXBuildFile; fileRef = 27A1B88C470550717F73A2B6 /* UserMessagingPlatform.xcframework */; };
+		28B6B311908327808BEB9F9D /* Pods-WhisperLive-iOS-Client-acknowledgements.markdown in Resources */ = {isa = PBXBuildFile; fileRef = ADF381E1DC2458AD2F5F0BE3 /* Pods-WhisperLive-iOS-Client-acknowledgements.markdown */; };
+		29E913529DB734C1C1984531 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = C722867AF8879E497CAB7E7E /* README.md */; };
+		2EE61946F4EADB223571FD69 /* Podfile.lock in Resources */ = {isa = PBXBuildFile; fileRef = 2AB20431E8B6A8BB5D8DFB2D /* Podfile.lock */; };
+		332923942D21E9E252D9F7EA /* BannerAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8F6048E4B43677E5C5787E4 /* BannerAdView.swift */; };
+		3A2FBA3EA7BD960B03E1C93D /* Pods_WhisperLive_iOS_Client.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2E44438BE96AA6E33547326 /* Pods_WhisperLive_iOS_Client.framework */; };
+		48440DC492C4B5FA1FB80FA6 /* ResourceBundle-UserMessagingPlatformResources-GoogleUserMessagingPlatform-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 882D54BC1E7A106FA5C8F0E0 /* ResourceBundle-UserMessagingPlatformResources-GoogleUserMessagingPlatform-Info.plist */; };
+		4D869C19E2F822AED52D4158 /* WhisperLive_iOS_ClientApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98BFA8892B79CC9304451004 /* WhisperLive_iOS_ClientApp.swift */; };
+		4DC7C31DB517D64195971F36 /* Pods-WhisperLive-iOS-ClientTests-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9B473591E1F9A4D016BDEE5B /* Pods-WhisperLive-iOS-ClientTests-Info.plist */; };
+		55BAC2AB588653D6281A1FA9 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E1F7FFE780B4D3DEA430789 /* ContentView.swift */; };
+		5C511D6356C8AF44AE554F5D /* README.txt in Resources */ = {isa = PBXBuildFile; fileRef = 72629FE43A672296B1B2E8B0 /* README.txt */; };
+		6258778052CEAC96382076E5 /* RecordingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CACC5086D6079DDE3113B5 /* RecordingViewModel.swift */; };
+		699972C3E26536C6F5931172 /* Pods-WhisperLive-iOS-ClientTests-acknowledgements.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9FEC5C7D5AAC3BA0001551F0 /* Pods-WhisperLive-iOS-ClientTests-acknowledgements.plist */; };
+		6F4B9CADAEE60A7055EA54D7 /* Pods.xcodeproj in Resources */ = {isa = PBXBuildFile; fileRef = E3A92E5314A0FE93945C2C57 /* Pods.xcodeproj */; };
+		6F80F4187CC318C2E595FA8F /* WhisperLive-iOS-Client-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = CA83617660FEDE936AA9DE2E /* WhisperLive-iOS-Client-Info.plist */; };
+		73CED7F013A75DC88005FCEB /* GoogleMobileAdsPlaceholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45BD923DAA476F3487226D34 /* GoogleMobileAdsPlaceholder.swift */; };
+		74933C0BFF86C3E7E72FA4DF /* Pods-WhisperLive-iOS-ClientTests-acknowledgements.markdown in Resources */ = {isa = PBXBuildFile; fileRef = 032E6F23D7666DFFB87E861F /* Pods-WhisperLive-iOS-ClientTests-acknowledgements.markdown */; };
+		793B651B050F627231A1868D /* project.yml in Resources */ = {isa = PBXBuildFile; fileRef = 3202B8C5678FBAC9B5241AA7 /* project.yml */; };
+		84BD2288E3F65B109048F295 /* BannerAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8F6048E4B43677E5C5787E4 /* BannerAdView.swift */; };
+		8C29A90A229A907CCB032D2D /* Podfile.lock in Resources */ = {isa = PBXBuildFile; fileRef = 2AB20431E8B6A8BB5D8DFB2D /* Podfile.lock */; };
+		91593AD00A33AE3CED205403 /* AudioStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF8CCEF7A649C565F7A9B2AD /* AudioStream.swift */; };
+		A076242DFF47ECCC5D858782 /* Manifest.lock in Resources */ = {isa = PBXBuildFile; fileRef = FEB25FEEA0FB294779345464 /* Manifest.lock */; };
+		AB60290DE23CBF3801EE38D1 /* WhisperLive-iOS-Client.xcodeproj in Resources */ = {isa = PBXBuildFile; fileRef = B280C02CD2623A8224796272 /* WhisperLive-iOS-Client.xcodeproj */; };
+		AE3C868F6FE09931E53C3E3C /* Pods_WhisperLive_iOS_ClientTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D4DCB7B2F5CC33D08618A443 /* Pods_WhisperLive_iOS_ClientTests.framework */; };
+		C1F3B9F081314B3328F2443A /* Pods-WhisperLive-iOS-Client-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F9186897832A1A4E85A18187 /* Pods-WhisperLive-iOS-Client-Info.plist */; };
+		C314E303467EE12E3201E3DD /* Pods-WhisperLive-iOS-Client-acknowledgements.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5EF04357106D216C3982B222 /* Pods-WhisperLive-iOS-Client-acknowledgements.plist */; };
+		C589DE69C795FFA4956F6242 /* project.yml in Resources */ = {isa = PBXBuildFile; fileRef = 3202B8C5678FBAC9B5241AA7 /* project.yml */; };
+		D2BC24C8565CB8AFB7F08A81 /* RecordingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CACC5086D6079DDE3113B5 /* RecordingViewModel.swift */; };
+		D3FF624B8B9708BEE426ACAE /* IAPManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BA5F9655D7914BDE8A417B6 /* IAPManager.swift */; };
+		D57490DAD40A4C446592AE10 /* Google-Mobile-Ads-SDK-xcframeworks.sh in Resources */ = {isa = PBXBuildFile; fileRef = 67E8343E1AD7DD2009B9255D /* Google-Mobile-Ads-SDK-xcframeworks.sh */; };
+		D7A69CDF03903798EFEFF48A /* AudioWebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4AD83FB265F4390D3587631 /* AudioWebSocket.swift */; };
+		DFD134070851B054CC9940CE /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = C722867AF8879E497CAB7E7E /* README.md */; };
+		E33FC3FA55813862F3706DB5 /* Pods-WhisperLive-iOS-Client-resources.sh in Resources */ = {isa = PBXBuildFile; fileRef = 488146E0DE4E204ED55BBC71 /* Pods-WhisperLive-iOS-Client-resources.sh */; };
+		EB8DC396035112CF0988022C /* AudioStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF8CCEF7A649C565F7A9B2AD /* AudioStream.swift */; };
+		F05C163D720F94FB34A486AE /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E1F7FFE780B4D3DEA430789 /* ContentView.swift */; };
+		F767F1DF9AE7CB34FD94C955 /* Pods-WhisperLive-iOS-Client-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 7485B9E7AA5CB167C9E41843 /* Pods-WhisperLive-iOS-Client-dummy.m */; };
+		FB76394F44D2DDF6AFA25410 /* WhisperLive-iOS-Client.xcworkspace in Resources */ = {isa = PBXBuildFile; fileRef = 6B3C5230847C35AE9B0060C3 /* WhisperLive-iOS-Client.xcworkspace */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		749374CE437BF5CD0B2BFFCA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7B7CF3D9F3C0901E56A35E20 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 93861B82E7C15F63BE99BDB8;
+			remoteInfo = "WhisperLive-iOS-Client";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		0030074F363DA834AEB89126 /* GoogleUserMessagingPlatform.release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = GoogleUserMessagingPlatform.release.xcconfig; sourceTree = "<group>"; };
+		032E6F23D7666DFFB87E861F /* Pods-WhisperLive-iOS-ClientTests-acknowledgements.markdown */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Pods-WhisperLive-iOS-ClientTests-acknowledgements.markdown"; sourceTree = "<group>"; };
+		05AE50C65DFDD5C4757D0015 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		0F2EA1A6141DFAF19603E63A /* Pods-WhisperLive-iOS-Client-umbrella.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Pods-WhisperLive-iOS-Client-umbrella.h"; sourceTree = "<group>"; };
+		1D5DED3EEB48C34E03DC9037 /* GoogleMobileAds.xcframework */ = {isa = PBXFileReference; expectedSignature = "AppleDeveloperProgram:EQHXZ8M8AV:Google LLC"; lastKnownFileType = wrapper.xcframework; path = GoogleMobileAds.xcframework; sourceTree = "<group>"; };
+		22E14BC2248D3869198AE70E /* GoogleUserMessagingPlatform.debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = GoogleUserMessagingPlatform.debug.xcconfig; sourceTree = "<group>"; };
+		27A1B88C470550717F73A2B6 /* UserMessagingPlatform.xcframework */ = {isa = PBXFileReference; expectedSignature = "AppleDeveloperProgram:EQHXZ8M8AV:Google LLC"; lastKnownFileType = wrapper.xcframework; path = UserMessagingPlatform.xcframework; sourceTree = "<group>"; };
+		27F767813F20B1FC6DCC3A20 /* Pods-WhisperLive-iOS-Client.debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Pods-WhisperLive-iOS-Client.debug.xcconfig"; sourceTree = "<group>"; };
+		2AB20431E8B6A8BB5D8DFB2D /* Podfile.lock */ = {isa = PBXFileReference; lastKnownFileType = text; path = Podfile.lock; sourceTree = "<group>"; };
+		3202B8C5678FBAC9B5241AA7 /* project.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = project.yml; sourceTree = "<group>"; };
+		34CACC5086D6079DDE3113B5 /* RecordingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingViewModel.swift; sourceTree = "<group>"; };
+		35D9E190895D66FCDCF5B183 /* Google-Mobile-Ads-SDK-xcframeworks-output-files.xcfilelist */ = {isa = PBXFileReference; lastKnownFileType = text.xcfilelist; path = "Google-Mobile-Ads-SDK-xcframeworks-output-files.xcfilelist"; sourceTree = "<group>"; };
+		3B63D8BFB2D540EA66417086 /* Google-Mobile-Ads-SDK-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Google-Mobile-Ads-SDK-Info.plist"; sourceTree = "<group>"; };
+		3D4903A31A6ABE77B91613BD /* ResourceBundle-GoogleMobileAdsResources-Google-Mobile-Ads-SDK-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "ResourceBundle-GoogleMobileAdsResources-Google-Mobile-Ads-SDK-Info.plist"; sourceTree = "<group>"; };
+		3E1F7FFE780B4D3DEA430789 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		45BD923DAA476F3487226D34 /* GoogleMobileAdsPlaceholder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleMobileAdsPlaceholder.swift; sourceTree = "<group>"; };
+		46D16683623A874EA408EC3C /* Pods-WhisperLive-iOS-ClientTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhisperLive-iOS-ClientTests.release.xcconfig"; path = "Target Support Files/Pods-WhisperLive-iOS-ClientTests/Pods-WhisperLive-iOS-ClientTests.release.xcconfig"; sourceTree = "<group>"; };
+		488146E0DE4E204ED55BBC71 /* Pods-WhisperLive-iOS-Client-resources.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "Pods-WhisperLive-iOS-Client-resources.sh"; sourceTree = "<group>"; };
+		554A4C346472C928FB86F118 /* Google-Mobile-Ads-SDK.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = "Google-Mobile-Ads-SDK.modulemap"; sourceTree = "<group>"; };
+		5EF04357106D216C3982B222 /* Pods-WhisperLive-iOS-Client-acknowledgements.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Pods-WhisperLive-iOS-Client-acknowledgements.plist"; sourceTree = "<group>"; };
+		67E8343E1AD7DD2009B9255D /* Google-Mobile-Ads-SDK-xcframeworks.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "Google-Mobile-Ads-SDK-xcframeworks.sh"; sourceTree = "<group>"; };
+		6B3C5230847C35AE9B0060C3 /* WhisperLive-iOS-Client.xcworkspace */ = {isa = PBXFileReference; lastKnownFileType = wrapper.workspace; path = "WhisperLive-iOS-Client.xcworkspace"; sourceTree = "<group>"; };
+		72629FE43A672296B1B2E8B0 /* README.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = README.txt; sourceTree = "<group>"; };
+		727691C67423F75EE95ABB0B /* Pods-WhisperLive-iOS-ClientTests.release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Pods-WhisperLive-iOS-ClientTests.release.xcconfig"; sourceTree = "<group>"; };
+		72D0BF683373204B142EAC0A /* Pods-WhisperLive-iOS-Client.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = "Pods-WhisperLive-iOS-Client.modulemap"; sourceTree = "<group>"; };
+		7485B9E7AA5CB167C9E41843 /* Pods-WhisperLive-iOS-Client-dummy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Pods-WhisperLive-iOS-Client-dummy.m"; sourceTree = "<group>"; };
+		76873D1CE65540A8ED67F67A /* WhisperLive-iOS-Client.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "WhisperLive-iOS-Client.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		7A1F5B089FEAC655C54ADA9C /* Pods-WhisperLive-iOS-Client-resources-Release-input-files.xcfilelist */ = {isa = PBXFileReference; lastKnownFileType = text.xcfilelist; path = "Pods-WhisperLive-iOS-Client-resources-Release-input-files.xcfilelist"; sourceTree = "<group>"; };
+		882D54BC1E7A106FA5C8F0E0 /* ResourceBundle-UserMessagingPlatformResources-GoogleUserMessagingPlatform-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "ResourceBundle-UserMessagingPlatformResources-GoogleUserMessagingPlatform-Info.plist"; sourceTree = "<group>"; };
+		8B41610631BEB60A7EC3127F /* Google-Mobile-Ads-SDK-dummy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Google-Mobile-Ads-SDK-dummy.m"; sourceTree = "<group>"; };
+		8BA5F9655D7914BDE8A417B6 /* IAPManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPManager.swift; sourceTree = "<group>"; };
+		9547856EF6436B23D40E57D5 /* Pods-WhisperLive-iOS-Client.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhisperLive-iOS-Client.debug.xcconfig"; path = "Target Support Files/Pods-WhisperLive-iOS-Client/Pods-WhisperLive-iOS-Client.debug.xcconfig"; sourceTree = "<group>"; };
+		9679A165A47355FD9508F8AB /* Google-Mobile-Ads-SDK-xcframeworks-input-files.xcfilelist */ = {isa = PBXFileReference; lastKnownFileType = text.xcfilelist; path = "Google-Mobile-Ads-SDK-xcframeworks-input-files.xcfilelist"; sourceTree = "<group>"; };
+		98BFA8892B79CC9304451004 /* WhisperLive_iOS_ClientApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhisperLive_iOS_ClientApp.swift; sourceTree = "<group>"; };
+		9B473591E1F9A4D016BDEE5B /* Pods-WhisperLive-iOS-ClientTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Pods-WhisperLive-iOS-ClientTests-Info.plist"; sourceTree = "<group>"; };
+		9FEC5C7D5AAC3BA0001551F0 /* Pods-WhisperLive-iOS-ClientTests-acknowledgements.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Pods-WhisperLive-iOS-ClientTests-acknowledgements.plist"; sourceTree = "<group>"; };
+		A14B8785C9162EAB7011470A /* GoogleUserMessagingPlatform-xcframeworks-output-files.xcfilelist */ = {isa = PBXFileReference; lastKnownFileType = text.xcfilelist; path = "GoogleUserMessagingPlatform-xcframeworks-output-files.xcfilelist"; sourceTree = "<group>"; };
+		A4BF5AAFBBB6DDCE2CF1E02D /* Pods-WhisperLive-iOS-Client.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhisperLive-iOS-Client.release.xcconfig"; path = "Target Support Files/Pods-WhisperLive-iOS-Client/Pods-WhisperLive-iOS-Client.release.xcconfig"; sourceTree = "<group>"; };
+		A9131E7A5D65F4C1654F1F39 /* Google-Mobile-Ads-SDK-umbrella.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Google-Mobile-Ads-SDK-umbrella.h"; sourceTree = "<group>"; };
+		A9452503A18D7F90B44C2761 /* Pods-WhisperLive-iOS-ClientTests-umbrella.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Pods-WhisperLive-iOS-ClientTests-umbrella.h"; sourceTree = "<group>"; };
+		AD77307A0011719A66C58C0C /* Pods-WhisperLive-iOS-Client-resources-Release-output-files.xcfilelist */ = {isa = PBXFileReference; lastKnownFileType = text.xcfilelist; path = "Pods-WhisperLive-iOS-Client-resources-Release-output-files.xcfilelist"; sourceTree = "<group>"; };
+		ADF381E1DC2458AD2F5F0BE3 /* Pods-WhisperLive-iOS-Client-acknowledgements.markdown */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Pods-WhisperLive-iOS-Client-acknowledgements.markdown"; sourceTree = "<group>"; };
+		B1B3D03340CA4644737EF0BE /* GoogleUserMessagingPlatform-xcframeworks-input-files.xcfilelist */ = {isa = PBXFileReference; lastKnownFileType = text.xcfilelist; path = "GoogleUserMessagingPlatform-xcframeworks-input-files.xcfilelist"; sourceTree = "<group>"; };
+		B280C02CD2623A8224796272 /* WhisperLive-iOS-Client.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "WhisperLive-iOS-Client.xcodeproj"; sourceTree = "<group>"; };
+		B2E44438BE96AA6E33547326 /* Pods_WhisperLive_iOS_Client.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WhisperLive_iOS_Client.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		B3F31E2488229004BAA86561 /* WhisperLive-iOS-ClientTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = "WhisperLive-iOS-ClientTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B4AD83FB265F4390D3587631 /* AudioWebSocket.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioWebSocket.swift; sourceTree = "<group>"; };
+		B8F6048E4B43677E5C5787E4 /* BannerAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BannerAdView.swift; sourceTree = "<group>"; };
+		C200C222067E0BD9CBEEE48F /* Pods-WhisperLive-iOS-ClientTests.debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Pods-WhisperLive-iOS-ClientTests.debug.xcconfig"; sourceTree = "<group>"; };
+		C5E56BA2DAD0BC5977345F7D /* Pods-WhisperLive-iOS-ClientTests-dummy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Pods-WhisperLive-iOS-ClientTests-dummy.m"; sourceTree = "<group>"; };
+		C6A771006A45F64687093EA0 /* Podfile */ = {isa = PBXFileReference; lastKnownFileType = text; path = Podfile; sourceTree = "<group>"; };
+		C722867AF8879E497CAB7E7E /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		CA83617660FEDE936AA9DE2E /* WhisperLive-iOS-Client-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "WhisperLive-iOS-Client-Info.plist"; sourceTree = "<group>"; };
+		CD670AE6F6387DDA605EFD7D /* Pods-WhisperLive-iOS-ClientTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhisperLive-iOS-ClientTests.debug.xcconfig"; path = "Target Support Files/Pods-WhisperLive-iOS-ClientTests/Pods-WhisperLive-iOS-ClientTests.debug.xcconfig"; sourceTree = "<group>"; };
+		CF8CCEF7A649C565F7A9B2AD /* AudioStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioStream.swift; sourceTree = "<group>"; };
+		D4DCB7B2F5CC33D08618A443 /* Pods_WhisperLive_iOS_ClientTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WhisperLive_iOS_ClientTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D8406508D2BBAE12504380AB /* Pods-WhisperLive-iOS-Client.release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Pods-WhisperLive-iOS-Client.release.xcconfig"; sourceTree = "<group>"; };
+		D9F22ED75AD856A7786632E2 /* Pods-WhisperLive-iOS-Client-resources-Debug-input-files.xcfilelist */ = {isa = PBXFileReference; lastKnownFileType = text.xcfilelist; path = "Pods-WhisperLive-iOS-Client-resources-Debug-input-files.xcfilelist"; sourceTree = "<group>"; };
+		DF731051B6F75BFD8CFCF528 /* Google-Mobile-Ads-SDK-prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Google-Mobile-Ads-SDK-prefix.pch"; sourceTree = "<group>"; };
+		E3A92E5314A0FE93945C2C57 /* Pods.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Pods.xcodeproj; sourceTree = "<group>"; };
+		E9F8F8CBF6C38AC3F2D8AB7A /* GoogleUserMessagingPlatform-xcframeworks.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "GoogleUserMessagingPlatform-xcframeworks.sh"; sourceTree = "<group>"; };
+		F9186897832A1A4E85A18187 /* Pods-WhisperLive-iOS-Client-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Pods-WhisperLive-iOS-Client-Info.plist"; sourceTree = "<group>"; };
+		FD4C7D5B134374EC6023436F /* Google-Mobile-Ads-SDK.release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Google-Mobile-Ads-SDK.release.xcconfig"; sourceTree = "<group>"; };
+		FE594E2EFDA092672E178AFB /* Google-Mobile-Ads-SDK.debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Google-Mobile-Ads-SDK.debug.xcconfig"; sourceTree = "<group>"; };
+		FEB25FEEA0FB294779345464 /* Manifest.lock */ = {isa = PBXFileReference; lastKnownFileType = text; path = Manifest.lock; sourceTree = "<group>"; };
+		FEE5D8DC742E2E7A846E3AC5 /* Pods-WhisperLive-iOS-ClientTests.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = "Pods-WhisperLive-iOS-ClientTests.modulemap"; sourceTree = "<group>"; };
+		FFF6C3ACA9A8AE70F8FA6B26 /* Pods-WhisperLive-iOS-Client-resources-Debug-output-files.xcfilelist */ = {isa = PBXFileReference; lastKnownFileType = text.xcfilelist; path = "Pods-WhisperLive-iOS-Client-resources-Debug-output-files.xcfilelist"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		75F4275699CA52DDEC675AEF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3A2FBA3EA7BD960B03E1C93D /* Pods_WhisperLive_iOS_Client.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D2B5C343EEADEDBD7C5C0E6C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AE3C868F6FE09931E53C3E3C /* Pods_WhisperLive_iOS_ClientTests.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0259C4682E8A6C274C757F7B /* Audio-Transcription-iOS */ = {
+			isa = PBXGroup;
+			children = (
+				CF8CCEF7A649C565F7A9B2AD /* AudioStream.swift */,
+				B4AD83FB265F4390D3587631 /* AudioWebSocket.swift */,
+				B8F6048E4B43677E5C5787E4 /* BannerAdView.swift */,
+				3E1F7FFE780B4D3DEA430789 /* ContentView.swift */,
+				8BA5F9655D7914BDE8A417B6 /* IAPManager.swift */,
+				C6A771006A45F64687093EA0 /* Podfile */,
+				2AB20431E8B6A8BB5D8DFB2D /* Podfile.lock */,
+				3202B8C5678FBAC9B5241AA7 /* project.yml */,
+				C722867AF8879E497CAB7E7E /* README.md */,
+				34CACC5086D6079DDE3113B5 /* RecordingViewModel.swift */,
+				98BFA8892B79CC9304451004 /* WhisperLive_iOS_ClientApp.swift */,
+				CA83617660FEDE936AA9DE2E /* WhisperLive-iOS-Client-Info.plist */,
+				B280C02CD2623A8224796272 /* WhisperLive-iOS-Client.xcodeproj */,
+				6B3C5230847C35AE9B0060C3 /* WhisperLive-iOS-Client.xcworkspace */,
+			);
+			name = "Audio-Transcription-iOS";
+			path = .;
+			sourceTree = "<group>";
+		};
+		0F7C9549D5255FA13DE9F718 /* Google-Mobile-Ads-SDK */ = {
+			isa = PBXGroup;
+			children = (
+				8B41610631BEB60A7EC3127F /* Google-Mobile-Ads-SDK-dummy.m */,
+				3B63D8BFB2D540EA66417086 /* Google-Mobile-Ads-SDK-Info.plist */,
+				DF731051B6F75BFD8CFCF528 /* Google-Mobile-Ads-SDK-prefix.pch */,
+				A9131E7A5D65F4C1654F1F39 /* Google-Mobile-Ads-SDK-umbrella.h */,
+				9679A165A47355FD9508F8AB /* Google-Mobile-Ads-SDK-xcframeworks-input-files.xcfilelist */,
+				35D9E190895D66FCDCF5B183 /* Google-Mobile-Ads-SDK-xcframeworks-output-files.xcfilelist */,
+				67E8343E1AD7DD2009B9255D /* Google-Mobile-Ads-SDK-xcframeworks.sh */,
+				FE594E2EFDA092672E178AFB /* Google-Mobile-Ads-SDK.debug.xcconfig */,
+				554A4C346472C928FB86F118 /* Google-Mobile-Ads-SDK.modulemap */,
+				FD4C7D5B134374EC6023436F /* Google-Mobile-Ads-SDK.release.xcconfig */,
+				3D4903A31A6ABE77B91613BD /* ResourceBundle-GoogleMobileAdsResources-Google-Mobile-Ads-SDK-Info.plist */,
+			);
+			path = "Google-Mobile-Ads-SDK";
+			sourceTree = "<group>";
+		};
+		15E22B225CB3EAE04BA178BE /* Pods-WhisperLive-iOS-ClientTests */ = {
+			isa = PBXGroup;
+			children = (
+				032E6F23D7666DFFB87E861F /* Pods-WhisperLive-iOS-ClientTests-acknowledgements.markdown */,
+				9FEC5C7D5AAC3BA0001551F0 /* Pods-WhisperLive-iOS-ClientTests-acknowledgements.plist */,
+				C5E56BA2DAD0BC5977345F7D /* Pods-WhisperLive-iOS-ClientTests-dummy.m */,
+				9B473591E1F9A4D016BDEE5B /* Pods-WhisperLive-iOS-ClientTests-Info.plist */,
+				A9452503A18D7F90B44C2761 /* Pods-WhisperLive-iOS-ClientTests-umbrella.h */,
+				C200C222067E0BD9CBEEE48F /* Pods-WhisperLive-iOS-ClientTests.debug.xcconfig */,
+				FEE5D8DC742E2E7A846E3AC5 /* Pods-WhisperLive-iOS-ClientTests.modulemap */,
+				727691C67423F75EE95ABB0B /* Pods-WhisperLive-iOS-ClientTests.release.xcconfig */,
+			);
+			path = "Pods-WhisperLive-iOS-ClientTests";
+			sourceTree = "<group>";
+		};
+		16A5FF6CD48943471EE956C6 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				76873D1CE65540A8ED67F67A /* WhisperLive-iOS-Client.app */,
+				B3F31E2488229004BAA86561 /* WhisperLive-iOS-ClientTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6B73676FC32A820F329E1549 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				FEB25FEEA0FB294779345464 /* Manifest.lock */,
+				E3A92E5314A0FE93945C2C57 /* Pods.xcodeproj */,
+				87CE289F8EF778FC3BB49F3A /* Google-Mobile-Ads-SDK */,
+				873B02A1645A70266D7376CA /* GoogleUserMessagingPlatform */,
+				7871A1E3F696F4F440741F1B /* Target Support Files */,
+				9547856EF6436B23D40E57D5 /* Pods-WhisperLive-iOS-Client.debug.xcconfig */,
+				A4BF5AAFBBB6DDCE2CF1E02D /* Pods-WhisperLive-iOS-Client.release.xcconfig */,
+				CD670AE6F6387DDA605EFD7D /* Pods-WhisperLive-iOS-ClientTests.debug.xcconfig */,
+				46D16683623A874EA408EC3C /* Pods-WhisperLive-iOS-ClientTests.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		6F349315569D57C7BD3C4B0F /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				45BD923DAA476F3487226D34 /* GoogleMobileAdsPlaceholder.swift */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		7871A1E3F696F4F440741F1B /* Target Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				0F7C9549D5255FA13DE9F718 /* Google-Mobile-Ads-SDK */,
+				8F2D01EF242602974B365CE9 /* GoogleUserMessagingPlatform */,
+				DFA07D8D7788E2442975C3BF /* Pods-WhisperLive-iOS-Client */,
+				15E22B225CB3EAE04BA178BE /* Pods-WhisperLive-iOS-ClientTests */,
+			);
+			path = "Target Support Files";
+			sourceTree = "<group>";
+		};
+		833FCC8B576B53836FB6AAE5 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				8F8536182D3CC945EA695665 /* GoogleMobileAdsFramework */,
+			);
+			path = Frameworks;
+			sourceTree = "<group>";
+		};
+		873B02A1645A70266D7376CA /* GoogleUserMessagingPlatform */ = {
+			isa = PBXGroup;
+			children = (
+				EB90F6119226E1E55B55A7A8 /* Frameworks */,
+			);
+			path = GoogleUserMessagingPlatform;
+			sourceTree = "<group>";
+		};
+		87CE289F8EF778FC3BB49F3A /* Google-Mobile-Ads-SDK */ = {
+			isa = PBXGroup;
+			children = (
+				05AE50C65DFDD5C4757D0015 /* LICENSE */,
+				72629FE43A672296B1B2E8B0 /* README.txt */,
+				833FCC8B576B53836FB6AAE5 /* Frameworks */,
+				6F349315569D57C7BD3C4B0F /* Sources */,
+			);
+			path = "Google-Mobile-Ads-SDK";
+			sourceTree = "<group>";
+		};
+		8887EB2182D8D41F48865D73 = {
+			isa = PBXGroup;
+			children = (
+				0259C4682E8A6C274C757F7B /* Audio-Transcription-iOS */,
+				6B73676FC32A820F329E1549 /* Pods */,
+				16A5FF6CD48943471EE956C6 /* Products */,
+				E932687B06BD545E14DA1B5A /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		8F2D01EF242602974B365CE9 /* GoogleUserMessagingPlatform */ = {
+			isa = PBXGroup;
+			children = (
+				B1B3D03340CA4644737EF0BE /* GoogleUserMessagingPlatform-xcframeworks-input-files.xcfilelist */,
+				A14B8785C9162EAB7011470A /* GoogleUserMessagingPlatform-xcframeworks-output-files.xcfilelist */,
+				E9F8F8CBF6C38AC3F2D8AB7A /* GoogleUserMessagingPlatform-xcframeworks.sh */,
+				22E14BC2248D3869198AE70E /* GoogleUserMessagingPlatform.debug.xcconfig */,
+				0030074F363DA834AEB89126 /* GoogleUserMessagingPlatform.release.xcconfig */,
+				882D54BC1E7A106FA5C8F0E0 /* ResourceBundle-UserMessagingPlatformResources-GoogleUserMessagingPlatform-Info.plist */,
+			);
+			path = GoogleUserMessagingPlatform;
+			sourceTree = "<group>";
+		};
+		8F8536182D3CC945EA695665 /* GoogleMobileAdsFramework */ = {
+			isa = PBXGroup;
+			children = (
+				1D5DED3EEB48C34E03DC9037 /* GoogleMobileAds.xcframework */,
+			);
+			path = GoogleMobileAdsFramework;
+			sourceTree = "<group>";
+		};
+		92E4DE312E83C8E700FCA3DB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		92E4DE332E83C8E700FCA3DB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		CAC7061E9AA85BECAE855E76 /* Release */ = {
+			isa = PBXGroup;
+			children = (
+				27A1B88C470550717F73A2B6 /* UserMessagingPlatform.xcframework */,
+			);
+			path = Release;
+			sourceTree = "<group>";
+		};
+		DFA07D8D7788E2442975C3BF /* Pods-WhisperLive-iOS-Client */ = {
+			isa = PBXGroup;
+			children = (
+				ADF381E1DC2458AD2F5F0BE3 /* Pods-WhisperLive-iOS-Client-acknowledgements.markdown */,
+				5EF04357106D216C3982B222 /* Pods-WhisperLive-iOS-Client-acknowledgements.plist */,
+				7485B9E7AA5CB167C9E41843 /* Pods-WhisperLive-iOS-Client-dummy.m */,
+				F9186897832A1A4E85A18187 /* Pods-WhisperLive-iOS-Client-Info.plist */,
+				D9F22ED75AD856A7786632E2 /* Pods-WhisperLive-iOS-Client-resources-Debug-input-files.xcfilelist */,
+				FFF6C3ACA9A8AE70F8FA6B26 /* Pods-WhisperLive-iOS-Client-resources-Debug-output-files.xcfilelist */,
+				7A1F5B089FEAC655C54ADA9C /* Pods-WhisperLive-iOS-Client-resources-Release-input-files.xcfilelist */,
+				AD77307A0011719A66C58C0C /* Pods-WhisperLive-iOS-Client-resources-Release-output-files.xcfilelist */,
+				488146E0DE4E204ED55BBC71 /* Pods-WhisperLive-iOS-Client-resources.sh */,
+				0F2EA1A6141DFAF19603E63A /* Pods-WhisperLive-iOS-Client-umbrella.h */,
+				27F767813F20B1FC6DCC3A20 /* Pods-WhisperLive-iOS-Client.debug.xcconfig */,
+				72D0BF683373204B142EAC0A /* Pods-WhisperLive-iOS-Client.modulemap */,
+				D8406508D2BBAE12504380AB /* Pods-WhisperLive-iOS-Client.release.xcconfig */,
+			);
+			path = "Pods-WhisperLive-iOS-Client";
+			sourceTree = "<group>";
+		};
+		E932687B06BD545E14DA1B5A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				B2E44438BE96AA6E33547326 /* Pods_WhisperLive_iOS_Client.framework */,
+				D4DCB7B2F5CC33D08618A443 /* Pods_WhisperLive_iOS_ClientTests.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		EB90F6119226E1E55B55A7A8 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				CAC7061E9AA85BECAE855E76 /* Release */,
+			);
+			path = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		189C064FE3A9A54DF4470C9D /* WhisperLive-iOS-ClientTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9D7B03814CAA55D078C307D1 /* Build configuration list for PBXNativeTarget "WhisperLive-iOS-ClientTests" */;
+			buildPhases = (
+				EC728E2685B753CB5D7B443A /* [CP] Check Pods Manifest.lock */,
+				560E4AE42051D722C4CC84F7 /* Sources */,
+				9046B2915AD35617DDE5E432 /* Resources */,
+				D2B5C343EEADEDBD7C5C0E6C /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				ED662674EFF22937E0A585C6 /* PBXTargetDependency */,
+			);
+			name = "WhisperLive-iOS-ClientTests";
+			productName = "WhisperLive-iOS-ClientTests";
+			productReference = B3F31E2488229004BAA86561 /* WhisperLive-iOS-ClientTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		93861B82E7C15F63BE99BDB8 /* WhisperLive-iOS-Client */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E4865F1F66F7D33AACB5A0F4 /* Build configuration list for PBXNativeTarget "WhisperLive-iOS-Client" */;
+			buildPhases = (
+				98612CDA07CC3F2C812304C6 /* [CP] Check Pods Manifest.lock */,
+				F41BB36DBB37506973A7BA1F /* Sources */,
+				3895F841C12B857DC71CAC0E /* Resources */,
+				75F4275699CA52DDEC675AEF /* Frameworks */,
+				29B861596A00D712D1FAE5B4 /* [CP] Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "WhisperLive-iOS-Client";
+			productName = "WhisperLive-iOS-Client";
+			productReference = 76873D1CE65540A8ED67F67A /* WhisperLive-iOS-Client.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		7B7CF3D9F3C0901E56A35E20 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+			};
+			buildConfigurationList = 68FC87FBD093C6B6C6B5A008 /* Build configuration list for PBXProject "WhisperLive-iOS-Client" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 8887EB2182D8D41F48865D73;
+			minimizedProjectReferenceProxies = 1;
+			productRefGroup = 16A5FF6CD48943471EE956C6 /* Products */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 92E4DE332E83C8E700FCA3DB /* Products */;
+					ProjectRef = E3A92E5314A0FE93945C2C57 /* Pods.xcodeproj */;
+				},
+				{
+					ProductGroup = 92E4DE312E83C8E700FCA3DB /* Products */;
+					ProjectRef = B280C02CD2623A8224796272 /* WhisperLive-iOS-Client.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				93861B82E7C15F63BE99BDB8 /* WhisperLive-iOS-Client */,
+				189C064FE3A9A54DF4470C9D /* WhisperLive-iOS-ClientTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		3895F841C12B857DC71CAC0E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8C29A90A229A907CCB032D2D /* Podfile.lock in Resources */,
+				29E913529DB734C1C1984531 /* README.md in Resources */,
+				793B651B050F627231A1868D /* project.yml in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9046B2915AD35617DDE5E432 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				02284C66F95DAE75BC5368B9 /* Google-Mobile-Ads-SDK-Info.plist in Resources */,
+				D57490DAD40A4C446592AE10 /* Google-Mobile-Ads-SDK-xcframeworks.sh in Resources */,
+				172C980BBB2FD4ABB025C11F /* GoogleMobileAds.xcframework in Resources */,
+				01805A4150BE545BD540B968 /* GoogleUserMessagingPlatform-xcframeworks.sh in Resources */,
+				A076242DFF47ECCC5D858782 /* Manifest.lock in Resources */,
+				2EE61946F4EADB223571FD69 /* Podfile.lock in Resources */,
+				C1F3B9F081314B3328F2443A /* Pods-WhisperLive-iOS-Client-Info.plist in Resources */,
+				28B6B311908327808BEB9F9D /* Pods-WhisperLive-iOS-Client-acknowledgements.markdown in Resources */,
+				C314E303467EE12E3201E3DD /* Pods-WhisperLive-iOS-Client-acknowledgements.plist in Resources */,
+				E33FC3FA55813862F3706DB5 /* Pods-WhisperLive-iOS-Client-resources.sh in Resources */,
+				4DC7C31DB517D64195971F36 /* Pods-WhisperLive-iOS-ClientTests-Info.plist in Resources */,
+				74933C0BFF86C3E7E72FA4DF /* Pods-WhisperLive-iOS-ClientTests-acknowledgements.markdown in Resources */,
+				699972C3E26536C6F5931172 /* Pods-WhisperLive-iOS-ClientTests-acknowledgements.plist in Resources */,
+				6F4B9CADAEE60A7055EA54D7 /* Pods.xcodeproj in Resources */,
+				DFD134070851B054CC9940CE /* README.md in Resources */,
+				5C511D6356C8AF44AE554F5D /* README.txt in Resources */,
+				1117097747A570D3FCDDE36A /* ResourceBundle-GoogleMobileAdsResources-Google-Mobile-Ads-SDK-Info.plist in Resources */,
+				48440DC492C4B5FA1FB80FA6 /* ResourceBundle-UserMessagingPlatformResources-GoogleUserMessagingPlatform-Info.plist in Resources */,
+				28172CF67B199313BFCD0DE2 /* UserMessagingPlatform.xcframework in Resources */,
+				6F80F4187CC318C2E595FA8F /* WhisperLive-iOS-Client-Info.plist in Resources */,
+				AB60290DE23CBF3801EE38D1 /* WhisperLive-iOS-Client.xcodeproj in Resources */,
+				FB76394F44D2DDF6AFA25410 /* WhisperLive-iOS-Client.xcworkspace in Resources */,
+				C589DE69C795FFA4956F6242 /* project.yml in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		29B861596A00D712D1FAE5B4 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-WhisperLive-iOS-Client/Pods-WhisperLive-iOS-Client-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-WhisperLive-iOS-Client/Pods-WhisperLive-iOS-Client-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-WhisperLive-iOS-Client/Pods-WhisperLive-iOS-Client-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		98612CDA07CC3F2C812304C6 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-WhisperLive-iOS-Client-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		EC728E2685B753CB5D7B443A /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-WhisperLive-iOS-ClientTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		560E4AE42051D722C4CC84F7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				91593AD00A33AE3CED205403 /* AudioStream.swift in Sources */,
+				D7A69CDF03903798EFEFF48A /* AudioWebSocket.swift in Sources */,
+				84BD2288E3F65B109048F295 /* BannerAdView.swift in Sources */,
+				F05C163D720F94FB34A486AE /* ContentView.swift in Sources */,
+				172E779203B6C4FF412C8A0A /* Google-Mobile-Ads-SDK-dummy.m in Sources */,
+				73CED7F013A75DC88005FCEB /* GoogleMobileAdsPlaceholder.swift in Sources */,
+				12E6484485ED733263BA84D8 /* IAPManager.swift in Sources */,
+				F767F1DF9AE7CB34FD94C955 /* Pods-WhisperLive-iOS-Client-dummy.m in Sources */,
+				190A759B14637668A0F369AA /* Pods-WhisperLive-iOS-ClientTests-dummy.m in Sources */,
+				D2BC24C8565CB8AFB7F08A81 /* RecordingViewModel.swift in Sources */,
+				180468E53FC7F263A35D9788 /* WhisperLive_iOS_ClientApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F41BB36DBB37506973A7BA1F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EB8DC396035112CF0988022C /* AudioStream.swift in Sources */,
+				211E678C5F71F61434A1C9B2 /* AudioWebSocket.swift in Sources */,
+				332923942D21E9E252D9F7EA /* BannerAdView.swift in Sources */,
+				55BAC2AB588653D6281A1FA9 /* ContentView.swift in Sources */,
+				D3FF624B8B9708BEE426ACAE /* IAPManager.swift in Sources */,
+				6258778052CEAC96382076E5 /* RecordingViewModel.swift in Sources */,
+				4D869C19E2F822AED52D4158 /* WhisperLive_iOS_ClientApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		ED662674EFF22937E0A585C6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 93861B82E7C15F63BE99BDB8 /* WhisperLive-iOS-Client */;
+			targetProxy = 749374CE437BF5CD0B2BFFCA /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		148EE663F9837F9E5754FE2B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = CD670AE6F6387DDA605EFD7D /* Pods-WhisperLive-iOS-ClientTests.debug.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				INFOPLIST_FILE = "Pods/GoogleUserMessagingPlatform/Frameworks/Release/UserMessagingPlatform.xcframework/ios-arm64_x86_64-simulator/UserMessagingPlatform.framework/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.example.WhisperLive-iOS-ClientTests";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WhisperLive-iOS-Client.app/WhisperLive-iOS-Client";
+			};
+			name = Debug;
+		};
+		436B52E834104DB0E11C2F0B /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 46D16683623A874EA408EC3C /* Pods-WhisperLive-iOS-ClientTests.release.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				INFOPLIST_FILE = "Pods/GoogleUserMessagingPlatform/Frameworks/Release/UserMessagingPlatform.xcframework/ios-arm64_x86_64-simulator/UserMessagingPlatform.framework/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.example.WhisperLive-iOS-ClientTests";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WhisperLive-iOS-Client.app/WhisperLive-iOS-Client";
+			};
+			name = Release;
+		};
+		A99AC99C2E63510780574D10 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		B531DE85C91766E5E4BDE277 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		D717969E2AF142A6DDAE4D1E /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A4BF5AAFBBB6DDCE2CF1E02D /* Pods-WhisperLive-iOS-Client.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = "WhisperLive-iOS-Client-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.whisperlive;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		ED7F20FCE7037F583C4AE45E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9547856EF6436B23D40E57D5 /* Pods-WhisperLive-iOS-Client.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = "WhisperLive-iOS-Client-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.whisperlive;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		68FC87FBD093C6B6C6B5A008 /* Build configuration list for PBXProject "WhisperLive-iOS-Client" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A99AC99C2E63510780574D10 /* Debug */,
+				B531DE85C91766E5E4BDE277 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		9D7B03814CAA55D078C307D1 /* Build configuration list for PBXNativeTarget "WhisperLive-iOS-ClientTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				148EE663F9837F9E5754FE2B /* Debug */,
+				436B52E834104DB0E11C2F0B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		E4865F1F66F7D33AACB5A0F4 /* Build configuration list for PBXNativeTarget "WhisperLive-iOS-Client" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				ED7F20FCE7037F583C4AE45E /* Debug */,
+				D717969E2AF142A6DDAE4D1E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 7B7CF3D9F3C0901E56A35E20 /* Project object */;
+}

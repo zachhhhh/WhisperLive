@@ -1,5 +1,5 @@
 //  AudioStream.swift
-//  Lecture2Quiz
+//  WhisperLive-iOS-Client
 //
 //  Created by ParkMazorika on 4/27/25.
 //
@@ -10,34 +10,27 @@ import AVFoundation
 class AudioStreamer {
     private let engine = AVAudioEngine()
     private let inputNode: AVAudioInputNode
-    private var inputFormat: AVAudioFormat?
+    private var tapFormat: AVAudioFormat?
     private var isPaused: Bool = false
     private var audioWebSocket: AudioWebSocket?
     private var partialBuffer = Data()
     private var isStreaming: Bool = false
 
-    private var bufferSize: AVAudioFrameCount = 1600  // ~100ms of audio
+    private var bufferSize: AVAudioFrameCount = 1600  // ~100ms of audio at 16k after conversion
     private var sampleRate: Double = 16000
     private var channels: UInt32 = 1
 
     private var converter: AVAudioConverter?
+    private let outputFormat16k = AVAudioFormat(
+        commonFormat: .pcmFormatInt16,
+        sampleRate: 16000,
+        channels: 1,
+        interleaved: true
+    )!
 
     init(webSocket: AudioWebSocket) {
         self.inputNode = engine.inputNode
         self.audioWebSocket = webSocket
-
-        let inputFormat = inputNode.outputFormat(forBus: 0)
-        print("Input format: \(inputFormat)")
-
-        let outputFormat = AVAudioFormat(
-            commonFormat: .pcmFormatInt16,
-            sampleRate: 16000,
-            channels: 1,
-            interleaved: true
-        )!
-
-        self.converter = AVAudioConverter(from: inputFormat, to: outputFormat)
-        self.inputFormat = outputFormat
     }
 
     /// Configures the audio session for recording.
@@ -67,21 +60,24 @@ class AudioStreamer {
 
         configureAudioSession()
 
-        let format = AVAudioFormat(
+        // Use a consistent tap format (48k, Float32, 1 or device channels)
+        let hardwareFormat = AVAudioFormat(
             commonFormat: .pcmFormatFloat32,
             sampleRate: 48000,
             channels: channels,
             interleaved: true
         )
 
-        guard let hardwareFormat = format else {
+        guard let tapFormat = hardwareFormat else {
             print("Failed to create audio format.")
             return
         }
 
-        self.inputFormat = hardwareFormat
+        self.tapFormat = tapFormat
+        // Create a converter that matches the tap format
+        self.converter = AVAudioConverter(from: tapFormat, to: outputFormat16k)
 
-        inputNode.installTap(onBus: 0, bufferSize: bufferSize, format: hardwareFormat) { [weak self] buffer, _ in
+        inputNode.installTap(onBus: 0, bufferSize: bufferSize, format: tapFormat) { [weak self] buffer, _ in
             self?.processAudioBuffer(buffer)
         }
 
@@ -96,6 +92,10 @@ class AudioStreamer {
 
     /// Converts and sends the audio buffer to the server via WebSocket.
     func processAudioBuffer(_ buffer: AVAudioPCMBuffer) {
+        // Ensure converter matches the incoming buffer format
+        if converter == nil || converter?.inputFormat != buffer.format {
+            converter = AVAudioConverter(from: buffer.format, to: outputFormat16k)
+        }
         guard let converter = self.converter else {
             print("Audio converter is nil.")
             return
@@ -105,20 +105,12 @@ class AudioStreamer {
             let frameLength = Int(buffer.frameLength)
             let channelData = Array(UnsafeBufferPointer(start: floatChannelData.pointee, count: frameLength))
             let rms = sqrt(channelData.map { $0 * $0 }.reduce(0, +) / Float(frameLength))
-            print("Audio RMS: \(rms)")
             if rms < 0.001 {
                 print("Warning: Input volume is too low.")
             }
         }
 
-        let outputFormat = AVAudioFormat(
-            commonFormat: .pcmFormatInt16,
-            sampleRate: 16000,
-            channels: 1,
-            interleaved: true
-        )!
-
-        guard let newBuffer = AVAudioPCMBuffer(pcmFormat: outputFormat, frameCapacity: 1600) else {
+        guard let newBuffer = AVAudioPCMBuffer(pcmFormat: outputFormat16k, frameCapacity: 1600) else {
             print("Failed to allocate PCM buffer.")
             return
         }
@@ -136,8 +128,6 @@ class AudioStreamer {
             return
         }
 
-        print("Converted buffer frameLength: \(newBuffer.frameLength), sampleRate: \(newBuffer.format.sampleRate)")
-
         if let audioData = convertToFloat32BytesLikePython(newBuffer) {
             var completeData = partialBuffer + audioData
             let chunkSize = 4096
@@ -145,7 +135,6 @@ class AudioStreamer {
             while completeData.count >= chunkSize {
                 let chunk = completeData.prefix(chunkSize)
                 audioWebSocket?.sendDataToServer(chunk)
-                print("Sent 4096 bytes of audio.")
                 completeData.removeFirst(chunkSize)
             }
 
@@ -173,8 +162,6 @@ class AudioStreamer {
         let targetRMS: Float32 = 0.25
         let gain = targetRMS / max(rms, 0.00001)
 
-        print("Original RMS: \(rms), applied gain: \(gain)")
-
         for i in 0..<frameLength {
             let scaled = floatArray[i] * gain
             let clipped = tanh(scaled * 3.0)
@@ -182,12 +169,6 @@ class AudioStreamer {
         }
 
         let floatData = Data(bytes: floatArray, count: frameLength * MemoryLayout<Float32>.size)
-
-        if let minVal = floatArray.min(), let maxVal = floatArray.max() {
-            print("Float32 value range after normalization: \(minVal)...\(maxVal)")
-        }
-
-        print("Converted to Float32 data: \(floatData.count) bytes")
         return floatData
     }
 
@@ -202,12 +183,16 @@ class AudioStreamer {
     /// Resumes audio streaming by reinstalling the input tap.
     func resumeStreaming() {
         guard isPaused else { return }
-        guard let inputFormat = inputFormat else {
-            print("inputFormat is nil.")
+        guard let tapFormat = tapFormat else {
+            print("tapFormat is nil.")
             return
         }
 
-        inputNode.installTap(onBus: 0, bufferSize: bufferSize, format: inputFormat) { [weak self] buffer, _ in
+        if converter == nil || converter?.inputFormat != tapFormat {
+            converter = AVAudioConverter(from: tapFormat, to: outputFormat16k)
+        }
+
+        inputNode.installTap(onBus: 0, bufferSize: bufferSize, format: tapFormat) { [weak self] buffer, _ in
             self?.processAudioBuffer(buffer)
         }
         isPaused = false

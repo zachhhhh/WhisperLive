@@ -8,18 +8,33 @@ import android.media.MediaRecorder
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.interstitial.InterstitialAd
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.*
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
 import org.json.JSONObject
 import java.net.URI
-import kotlin.random.Random
+import java.nio.ByteBuffer
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var billingManager: BillingManager
+    private var interstitialAd: InterstitialAd? = null
+    private lateinit var adView: AdView
+    private lateinit var adContainer: LinearLayout
 
     private lateinit var etHost: EditText
     private lateinit var etPort: EditText
@@ -29,6 +44,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvTranscription: TextView
     private lateinit var tvTranslation: TextView
     private lateinit var translationLayout: LinearLayout
+    private lateinit var premiumBtn: Button
 
     private var webSocketClient: WebSocketClient? = null
     private var audioRecord: AudioRecord? = null
@@ -51,6 +67,20 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // Monetization setup
+        billingManager = BillingManager(this)
+        MobileAds.initialize(this) {}
+        loadInterstitialAd()
+
+        // Add banner ad
+        adContainer = findViewById(R.id.adContainer)
+        adView = AdView(this)
+        adView.adUnitId = "ca-app-pub-3940256099942544/6300978111" // Test ID
+        adView.setAdSize(AdSize.BANNER)
+        adContainer.addView(adView)
+        val adRequest = AdRequest.Builder().build()
+        adView.loadAd(adRequest)
+
         etHost = findViewById(R.id.etHost)
         etPort = findViewById(R.id.etPort)
         switchTranslation = findViewById(R.id.switchTranslation)
@@ -59,6 +89,12 @@ class MainActivity : AppCompatActivity() {
         tvTranscription = findViewById(R.id.tvTranscription)
         tvTranslation = findViewById(R.id.tvTranslation)
         translationLayout = findViewById(R.id.translationLayout)
+        premiumBtn = findViewById(R.id.premiumBtn)
+        premiumBtn.isEnabled = false
+        premiumBtn.text = getString(R.string.premium_button_loading)
+        premiumBtn.setOnClickListener {
+            billingManager.launchBillingFlow(this, billingManager.productDetails.value.firstOrNull() ?: return@setOnClickListener)
+        }
 
         etHost.setText("localhost")
         etPort.setText("9090")
@@ -85,9 +121,65 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // Premium check
+        lifecycleScope.launch {
+            billingManager.purchaseState.collectLatest { state ->
+                if (state == PurchaseState.Purchased) {
+                    // Hide ads
+                    adView.pause()
+                    adView.visibility = View.GONE
+                    adContainer.visibility = View.GONE
+                    premiumBtn.visibility = View.GONE
+                    interstitialAd = null
+                } else {
+                    // Show ads
+                    adContainer.visibility = View.VISIBLE
+                    adView.visibility = View.VISIBLE
+                    adView.resume()
+                    premiumBtn.visibility = View.VISIBLE
+                    if (state == PurchaseState.NotPurchased) {
+                        showInterstitialAd()
+                    }
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            billingManager.productDetails.collectLatest { details ->
+                val premiumDetails = details.firstOrNull()
+                if (premiumDetails != null) {
+                    val price = premiumDetails.oneTimePurchaseOfferDetails?.formattedPrice
+                    premiumBtn.isEnabled = true
+                    premiumBtn.text = price?.let {
+                        getString(R.string.premium_button_with_price, it)
+                    } ?: getString(R.string.premium_button_default)
+                } else {
+                    premiumBtn.isEnabled = false
+                    premiumBtn.text = getString(R.string.premium_button_loading)
+                }
+            }
+        }
+
         // Default visibility
         translationLayout.visibility = View.GONE
         spinnerLanguage.visibility = View.GONE
+    }
+
+    private fun loadInterstitialAd() {
+        InterstitialAd.load(this, "ca-app-pub-3940256099942544/1033173712", AdRequest.Builder().build(), object : InterstitialAdLoadCallback() {
+            override fun onAdLoaded(ad: InterstitialAd) {
+                interstitialAd = ad
+            }
+            override fun onAdFailedToLoad(error: LoadAdError) {
+                interstitialAd = null
+            }
+        })
+    }
+
+    private fun showInterstitialAd() {
+        interstitialAd?.show(this)
+        interstitialAd = null
+        loadInterstitialAd()
     }
 
     private fun checkPermissions(): Boolean {
@@ -155,7 +247,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            override fun onMessage(bytes: ByteArray?) {
+            override fun onMessage(bytes: ByteBuffer?) {
                 // Binary audio response not expected
             }
 
@@ -194,7 +286,7 @@ class MainActivity : AppCompatActivity() {
         btnRecord.text = "Stop Recording"
         btnRecord.setBackgroundColor(ContextCompat.getColor(this, android.R.color.holo_red_light))
 
-        recordingJob = CoroutineScope(Dispatchers.IO).launch {
+        recordingJob = lifecycleScope.launch(Dispatchers.IO) {
             val buffer = FloatArray(BUFFER_SIZE)
             while (isRecording) {
                 if (!isPaused) {
@@ -231,6 +323,7 @@ class MainActivity : AppCompatActivity() {
         btnRecord.text = "Start Recording"
         btnRecord.setBackgroundColor(ContextCompat.getColor(this, android.R.color.holo_green_light))
         tvTranscription.append("\n--- End of Recording ---")
+        recordingJob = null
     }
 
     private fun pauseRecording() {
@@ -292,5 +385,19 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         stopRecording()
+        adView.destroy()
+        billingManager.destroy()
+    }
+
+    override fun onPause() {
+        adView.pause()
+        super.onPause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (billingManager.purchaseState.value != PurchaseState.Purchased) {
+            adView.resume()
+        }
     }
 }

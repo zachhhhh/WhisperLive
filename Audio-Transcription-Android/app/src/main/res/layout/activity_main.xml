@@ -126,4 +126,32 @@
 
     </LinearLayout>
 
+    <!-- Premium Container -->
+    <LinearLayout
+        android:id="@+id/premiumContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_marginTop="8dp">
+
+        <Button
+            android:id="@+id/premiumBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Go Premium (Remove Ads)"
+            android:visibility="visible" />
+
+    </LinearLayout>
+
+    <!-- Ad Container -->
+    <LinearLayout
+        android:id="@+id/adContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="visible"
+        android:layout_marginTop="8dp" />
+
 </LinearLayout>

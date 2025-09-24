@@ -17,19 +17,20 @@ struct TranscriptionSegment: Identifiable, Equatable {
     var completed: Bool
 }
 
-@Published var enableTranslation: Bool = false
-@Published var targetLanguage: String = "en"
-@Published var translatedList: [String] = []     // Live translated transcription output
-@Published var finalTranslatedScript: String = "" // Final translated script
-
 /// ViewModel responsible for managing audio recording and transcription logic.
 class AudioViewModel: ObservableObject {
+    @Published var host: String = "localhost"
+    @Published var port: String = "9090"
     @Published var isRecording = false            // Indicates if recording is active
     @Published var isPaused = false               // Indicates if recording is currently paused
     @Published var timeLabel = "00:00"            // Timer label formatted as mm:ss
     @Published var transcriptionList: [String] = []  // Live transcription output
     @Published var isLoading = false              // True while waiting for server response
     @Published var finalScript: String = ""       // Final script from completed segments
+    @Published var enableTranslation: Bool = false
+    @Published var targetLanguage: String = "en"
+    @Published var translatedList: [String] = []     // Live translated transcription output
+    @Published var finalTranslatedScript: String = "" // Final translated script
 
     private var timer: Timer?
     private var elapsedTime: Int = 0
@@ -44,8 +45,8 @@ class AudioViewModel: ObservableObject {
 
     /// Starts audio recording and initializes WebSocket + AVAudioEngine.
     func startRecording() {
-        let audioAPIUrl = "your server url"
-        audioWebSocket = AudioWebSocket(host: audioAPIUrl, port: 443, enableTranslation: enableTranslation, targetLanguage: targetLanguage)
+        let portInt = Int(port) ?? 9090
+        audioWebSocket = AudioWebSocket(host: host, port: portInt, enableTranslation: enableTranslation, targetLanguage: targetLanguage)
         audioStreamer = AudioStreamer(webSocket: audioWebSocket!)
 
         isLoading = true

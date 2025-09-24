@@ -1,6 +1,15 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+}
+
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('keystore.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
 android {
@@ -12,15 +21,33 @@ android {
         minSdk 26
         targetSdk 34
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.0"  // Update for releases, e.g., "1.1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        release {
+            if (keystoreProperties['storeFile']) {
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+            }
+        }
+    }
+
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true  // Enable for production to shrink code
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            if (keystoreProperties['storeFile']) {
+                signingConfig signingConfigs.release
+            }
+            // For AAB: bundle will include all ABIs; customize if needed
+        }
+        debug {
+            signingConfig signingConfigs.debug  // Default debug signing
         }
     }
     compileOptions {
@@ -40,13 +67,18 @@ dependencies {
 
     // WebSocket and networking
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'
-    implementation 'com.squareup.okhttp3:okhttp-ws:4.12.0' // Note: OkHttp doesn't have built-in WS, use okhttp-ws or similar; actually use 'com.squareup.okhttp3:logging-interceptor:4.12.0' and implement WS manually or use a lib like 'org.java-websocket:Java-WebSocket:1.5.3'
 
     // For WebSocket, use Java-WebSocket
     implementation 'org.java-websocket:Java-WebSocket:1.5.4'
 
     // Coroutines for async
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
+
+    // Monetization: Google Play Billing
+    implementation 'com.android.billingclient:billing-ktx:6.1.0'
+
+    // Monetization: AdMob
+    implementation 'com.google.android.gms:play-services-ads:22.6.0'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'

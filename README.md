@@ -197,6 +197,47 @@ Setup:
 
 For building installers: `npm run build` (Windows) or `npm run dist` for distributables. See [`package.json`](https://github.com/zachhhhh/WhisperLive/blob/main/Desktop-Client-Windows/package.json) for details.
 
+## Publishing Clients to Stores
+
+The WhisperLive project includes native clients for Android, iOS, and cross-platform desktop (Windows/macOS). Each has been configured for release builds with signing placeholders and platform-specific instructions. Follow the steps below for publishing; detailed guides are in each client's README.md.
+
+### Android (Google Play Store)
+
+- **Prerequisites**: Google Play Console account ($25 one-time), keystore for signing.
+- **Build**: In `Audio-Transcription-Android/`, run `./gradlew bundleRelease` for AAB.
+- **Publish**: Upload AAB to Play Console, fill store listing (title: "WhisperLive Transcription", describe server dependency, add privacy policy for mic/internet), submit for review (1-7 days).
+- **Details**: See [`Audio-Transcription-Android/README.md`](https://github.com/zachhhhh/WhisperLive/blob/main/Audio-Transcription-Android/README.md) for signing/build setup.
+
+### iOS (Apple App Store)
+
+- **Prerequisites**: Apple Developer Program ($99/year), Mac with Xcode.
+- **Setup**: Create Xcode project as per instructions, add files, set bundle ID/version.
+- **Build**: Product > Archive, then Distribute App > App Store Connect.
+- **Publish**: Upload to App Store Connect, add metadata (screenshots, description noting server use), submit for review (1-2 weeks).
+- **Details**: See [`Audio-Transcription-iOS/README.md`](https://github.com/zachhhhh/WhisperLive/blob/main/Audio-Transcription-iOS/README.md) for project creation/signing.
+
+### Desktop (Microsoft Store for Windows, Mac App Store for macOS)
+
+- **Prerequisites**: Microsoft Partner Center ($19 one-time) for Win; Apple Developer ($99/year) for Mac.
+- **Build**: In `Desktop-Client-Windows/`, `npm run build:win` for Windows NSIS/MSIX; `npm run build:mac` for macOS DMG/.app (on Mac).
+- **Publish Windows**: Upload MSIX to Partner Center, store listing (privacy for mic), certification (1-3 days).
+- **Publish macOS**: Notarize .app/DMG, upload via Transporter to App Store Connect, metadata/review (1-2 weeks).
+- **Details**: See [`Desktop-Client-Windows/README.md`](https://github.com/zachhhhh/WhisperLive/blob/main/Desktop-Client-Windows/README.md) for signing/notarization.
+
+**Notes**: All clients require a running WhisperLive server; disclose in descriptions. Ensure privacy policy covers audio recording/internet. Test releases internally first.
+
+### Shared Resources Across Platforms
+
+- **Version Syncing**: Manually update version in each: Android (app/build.gradle), iOS (Xcode General tab), Desktop (package.json). For automation, create a shared `VERSION` file (e.g., "1.0.0") and script reads (not implemented; add via CI/CD).
+- **Icons**: Create consistent set (e.g., 1024x1024 PNG base):
+  - Android: Place in `app/src/main/res/mipmap-*` (various sizes).
+  - iOS: Add to Xcode Assets.xcassets (AppIcon set).
+  - Desktop: `build/icon.ico` (Win), `build/icon.icns` (Mac).
+  - Generate via tools like Figma or [App Icon Generator](https://appicon.co); ensure no transparency issues.
+- **Privacy Policy**: Use a shared HTML/MD file hosted on GitHub Pages, link in all store listings.
+
+For CI/CD (e.g., GitHub Actions), add workflows to build all platforms on tags.
+
 ## Whisper Live Server in Docker
 
 - GPU
