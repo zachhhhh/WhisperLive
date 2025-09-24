@@ -78,4 +78,4 @@ fastlane/test_output
 
 # Visual Studio cache files
 bin/
-obj/
+obj/*.hprof
