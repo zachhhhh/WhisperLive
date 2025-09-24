@@ -24,11 +24,16 @@ class AudioWebSocket: NSObject, URLSessionWebSocketDelegate {
     var onServerReady: (() -> Void)?
     var onTranscriptionReceived: ((String) -> Void)?
 
-    init(host: String, port: Int, modelSize: String = "medium") {
+    var enableTranslation: Bool = false
+    var targetLanguage: String = "en"
+
+    init(host: String, port: Int, modelSize: String = "medium", enableTranslation: Bool = false, targetLanguage: String = "en") {
         self.host = host
         self.port = port
         self.uid = UUID().uuidString
         self.modelSize = modelSize
+        self.enableTranslation = enableTranslation
+        self.targetLanguage = targetLanguage
         super.init()
 
         self.urlSession = URLSession(
@@ -72,6 +77,9 @@ class AudioWebSocket: NSObject, URLSessionWebSocketDelegate {
             "task": "transcribe",
             "model": modelSize,
             "use_vad": true,
+            "enable_translation": enableTranslation,
+            "target_language": targetLanguage,
+            "send_last_n_segments": 10,
             "max_clients": 4,
             "max_connection_time": 600
         ]
@@ -173,6 +181,12 @@ class AudioWebSocket: NSObject, URLSessionWebSocketDelegate {
                         let segmentString = String(data: segmentData, encoding: .utf8)!
                         onTranscriptionReceived?(segmentString)
                         print("Transcription segments forwarded.")
+                    } else if let translatedSegments = json["translated_segments"] as? [[String: Any]] {
+                        let wrapped = ["translated_segments": translatedSegments]
+                        let segmentData = try JSONSerialization.data(withJSONObject: wrapped, options: [])
+                        let segmentString = String(data: segmentData, encoding: .utf8)!
+                        onTranscriptionReceived?(segmentString)
+                        print("Translated segments forwarded.")
                     }
                 }
             } catch {

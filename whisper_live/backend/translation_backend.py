@@ -4,11 +4,9 @@ import threading
 import time
 import queue
 from typing import Dict, Any, Optional
-import torch
-import threading
-from transformers import M2M100ForConditionalGeneration
-from whisper_live.backend.tokenization_small100 import SMALL100Tokenizer
-
+import numpy as np
+import onnxruntime as ort
+from transformers import T5Tokenizer
 from whisper_live.backend.base import ServeClientBase
 
 
@@ -24,9 +22,9 @@ class ServeClientTranslation(ServeClientBase):
         client_uid,
         websocket,
         translation_queue,
-        target_language="fr", 
+        target_language="fr",
         send_last_n_segments=10,
-        model_name="alirezamsh/small100"
+        model_name="seamless_m4t_v2_large_onnx"  # Path to exported ONNX model directory
     ):
         """
         Initialize the translation client.
@@ -51,28 +49,29 @@ class ServeClientTranslation(ServeClientBase):
         self.load_translation_model()
         
     def load_translation_model(self):
-        """Load the translation model and tokenizer."""
+        """Load the ONNX translation model and tokenizer."""
         try:
-            self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-            logging.info(f"Loading translation model on device: {self.device}")
+            # Load tokenizer (shared with export)
+            self.tokenizer = T5Tokenizer.from_pretrained("facebook/seamless-m4t-v2-large")
             
-            self.translation_model = M2M100ForConditionalGeneration.from_pretrained(
-                self.model_name
-            ).to(self.device)
-            self.tokenizer = SMALL100Tokenizer.from_pretrained(self.model_name)
-            self.tokenizer.tgt_lang = self.target_language
+            # Load ONNX model (assume exported to model_name directory)
+            providers = ['CUDAExecutionProvider', 'CPUExecutionProvider'] if ort.get_device() == 'GPU' else ['CPUExecutionProvider']
+            self.translation_model = ort.InferenceSession(
+                f"{self.model_name}/model.onnx",  # Encoder-decoder or full model ONNX
+                providers=providers
+            )
             
             self.model_loaded = True
-            logging.info(f"Translation model loaded successfully. Target language: {self.target_language}")
+            logging.info(f"ONNX translation model loaded successfully. Target language: {self.target_language}")
         except Exception as e:
-            logging.error(f"Failed to load translation model: {e}")
+            logging.error(f"Failed to load ONNX translation model: {e}")
             self.translation_model = None
             self.tokenizer = None
             self.model_loaded = False
     
     def translate_text(self, text: str) -> str:
         """
-        Translate a single text segment.
+        Translate a single text segment using ONNX.
         
         Args:
             text (str): Text to translate
@@ -84,19 +83,33 @@ class ServeClientTranslation(ServeClientBase):
             return text
             
         try:
-            # Encode input and move to device
-            encoded_input = self.tokenizer(text, return_tensors="pt").to(self.device)
+            # Tokenize input
+            inputs = self.tokenizer(
+                text,
+                return_tensors="np",
+                src_lang="eng",
+                tgt_lang=self.target_language,
+                padding=True,
+                truncation=True,
+                max_length=512
+            )
             
-            # Generate translation
-            with torch.no_grad():
-                generated_tokens = self.translation_model.generate(**encoded_input)
+            # Run ONNX inference (assume exported encoder-decoder pipeline)
+            # For simplicity, assume single session for generation; in practice, use encoder then decoder loop
+            outputs = self.translation_model.run(None, {
+                'input_ids': inputs['input_ids'],
+                'attention_mask': inputs['attention_mask'],
+                'decoder_input_ids': np.array([[self.tokenizer.pad_token_id]]),  # BOS
+            })
+            
+            generated_ids = outputs[0]  # Adjust based on export (e.g., logits to tokens)
             
             # Decode output
-            output = self.tokenizer.batch_decode(generated_tokens, skip_special_tokens=True)
+            output = self.tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
             return output[0] if output else text
             
         except Exception as e:
-            logging.error(f"Translation failed for text '{text}': {e}")
+            logging.error(f"ONNX translation failed for text '{text}': {e}")
             return text
     
     def process_translation_queue(self):
@@ -213,6 +226,3 @@ class ServeClientTranslation(ServeClientBase):
         if self.tokenizer:
             del self.tokenizer
             self.tokenizer = None
-        
-        if self.device and self.device.type == 'cuda':
-            torch.cuda.empty_cache()

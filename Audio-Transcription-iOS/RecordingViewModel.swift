@@ -17,6 +17,11 @@ struct TranscriptionSegment: Identifiable, Equatable {
     var completed: Bool
 }
 
+@Published var enableTranslation: Bool = false
+@Published var targetLanguage: String = "en"
+@Published var translatedList: [String] = []     // Live translated transcription output
+@Published var finalTranslatedScript: String = "" // Final translated script
+
 /// ViewModel responsible for managing audio recording and transcription logic.
 class AudioViewModel: ObservableObject {
     @Published var isRecording = false            // Indicates if recording is active
@@ -33,13 +38,14 @@ class AudioViewModel: ObservableObject {
     private var audioWebSocket: AudioWebSocket?   // Manages WebSocket communication
 
     private var segments: [TranscriptionSegment] = []  // Stores all transcription segments
+    private var translatedSegments: [TranscriptionSegment] = []  // Stores translated segments
 
     init() {}
 
     /// Starts audio recording and initializes WebSocket + AVAudioEngine.
     func startRecording() {
         let audioAPIUrl = "your server url"
-        audioWebSocket = AudioWebSocket(host: audioAPIUrl, port: 443)
+        audioWebSocket = AudioWebSocket(host: audioAPIUrl, port: 443, enableTranslation: enableTranslation, targetLanguage: targetLanguage)
         audioStreamer = AudioStreamer(webSocket: audioWebSocket!)
 
         isLoading = true
@@ -108,6 +114,16 @@ class AudioViewModel: ObservableObject {
             .map { $0.text.trimmingCharacters(in: .whitespaces) }
             .joined(separator: " ")
         finalScript = completedText
+
+        if enableTranslation {
+            let completedTranslatedText = translatedSegments
+                .filter { $0.completed }
+                .map { $0.text.trimmingCharacters(in: .whitespaces) }
+                .joined(separator: " ")
+            finalTranslatedScript = completedTranslatedText
+            print("Final translated transcript:\n\(finalTranslatedScript)")
+        }
+
         print("Final transcript:\n\(finalScript)")
     }
 
@@ -120,54 +136,80 @@ class AudioViewModel: ObservableObject {
         if trimmed.hasPrefix("{") {
             // Parse JSON containing segment list
             do {
-                if let dict = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-                   let segmentDicts = dict["segments"] as? [[String: Any]] {
-
-                    for item in segmentDicts {
-                        guard let startStr = item["start"] as? String,
-                              let endStr = item["end"] as? String,
-                              let text = item["text"] as? String,
-                              let completed = item["completed"] as? Bool,
-                              let start = Double(startStr),
-                              let end = Double(endStr) else { continue }
-
-                        let newSegment = TranscriptionSegment(start: start, end: end, text: text, completed: completed)
-
-                        // Overwrite if already exists, else append
-                        if let index = self.segments.firstIndex(where: { $0.start == start }) {
-                            self.segments[index] = newSegment
-                        } else {
-                            self.segments.append(newSegment)
-                        }
-                    }
-
-                    // Update the UI
-                    DispatchQueue.main.async {
-                        let completedTexts = self.segments
-                            .filter { $0.completed }
-                            .sorted(by: { $0.start < $1.start })
-                            .map { $0.text.trimmingCharacters(in: .whitespaces) }
-
-                        let pendingText = self.segments
-                            .filter { !$0.completed }
-                            .sorted(by: { $0.start < $1.start })
-                            .map { $0.text.trimmingCharacters(in: .whitespaces) }
-                            .last ?? ""
-
-                        self.transcriptionList = completedTexts + (pendingText.isEmpty ? [] : [pendingText])
-                        self.finalScript = self.transcriptionList.joined(separator: " ")
+                if let dict = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                    if let segmentDicts = dict["segments"] as? [[String: Any]] {
+                        processSegments(segmentDicts, isTranslated: false)
+                    } else if let translatedDicts = dict["translated_segments"] as? [[String: Any]] {
+                        processSegments(translatedDicts, isTranslated: true)
                     }
                 }
             } catch {
                 print("JSON parsing error: \(error)")
             }
         } else {
-            // Handle raw text line
+            // Handle raw text line (fallback for transcription)
             DispatchQueue.main.async {
                 if self.transcriptionList.last != trimmed {
                     self.transcriptionList.append(trimmed)
                     self.finalScript = self.transcriptionList.joined(separator: " ")
                 }
+            }
+        }
+    }
+
+    private func processSegments(_ segmentDicts: [[String: Any]], isTranslated: Bool) {
+        var targetSegments: [TranscriptionSegment] = isTranslated ? translatedSegments : segments
+
+        for item in segmentDicts {
+            guard let startStr = item["start"] as? String,
+                  let endStr = item["end"] as? String,
+                  let text = item["text"] as? String,
+                  let completed = item["completed"] as? Bool,
+                  let start = Double(startStr),
+                  let end = Double(endStr) else { continue }
+
+            let newSegment = TranscriptionSegment(start: start, end: end, text: text, completed: completed)
+
+            // Overwrite if already exists, else append
+            if let index = targetSegments.firstIndex(where: { $0.start == start }) {
+                targetSegments[index] = newSegment
+            } else {
+                targetSegments.append(newSegment)
+            }
+        }
+
+        // Update the UI
+        DispatchQueue.main.async {
+            if isTranslated {
+                self.translatedSegments = targetSegments
+                let completedTranslatedTexts = self.translatedSegments
+                    .filter { $0.completed }
+                    .sorted(by: { $0.start < $1.start })
+                    .map { $0.text.trimmingCharacters(in: .whitespaces) }
+
+                let pendingTranslatedText = self.translatedSegments
+                    .filter { !$0.completed }
+                    .sorted(by: { $0.start < $1.start })
+                    .map { $0.text.trimmingCharacters(in: .whitespaces) }
+                    .last ?? ""
+
+                self.translatedList = completedTranslatedTexts + (pendingTranslatedText.isEmpty ? [] : [pendingTranslatedText])
+                self.finalTranslatedScript = self.translatedList.joined(separator: " ")
+            } else {
+                self.segments = targetSegments
+                let completedTexts = self.segments
+                    .filter { $0.completed }
+                    .sorted(by: { $0.start < $1.start })
+                    .map { $0.text.trimmingCharacters(in: .whitespaces) }
+
+                let pendingText = self.segments
+                    .filter { !$0.completed }
+                    .sorted(by: { $0.start < $1.start })
+                    .map { $0.text.trimmingCharacters(in: .whitespaces) }
+                    .last ?? ""
+
+                self.transcriptionList = completedTexts + (pendingText.isEmpty ? [] : [pendingText])
+                self.finalScript = self.transcriptionList.joined(separator: " ")
             }
         }
     }

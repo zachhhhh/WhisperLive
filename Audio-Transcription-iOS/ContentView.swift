@@ -15,6 +15,28 @@ struct RecordingView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            // Translation controls
+            if !recordingViewModel.isRecording {
+                VStack(alignment: .leading, spacing: 8) {
+                    Toggle("Enable Translation", isOn: $recordingViewModel.enableTranslation)
+                        .toggleStyle(SwitchToggleStyle(tint: .blue))
+                    if recordingViewModel.enableTranslation {
+                        Picker("Target Language", selection: $recordingViewModel.targetLanguage) {
+                            Text("English").tag("en")
+                            Text("French").tag("fr")
+                            Text("Spanish").tag("es")
+                            Text("Hindi").tag("hi")
+                            Text("Japanese").tag("ja")
+                        }
+                        .pickerStyle(MenuPickerStyle())
+                    }
+                }
+                .padding()
+                .background(Color.gray.opacity(0.1))
+                .cornerRadius(8)
+                .padding(.horizontal)
+            }
+
             // Stop button (only visible when recording)
             HStack {
                 Spacer()
@@ -43,6 +65,28 @@ struct RecordingView: View {
                     }
                 }
                 .padding(.horizontal)
+            }
+
+            if recordingViewModel.enableTranslation && !recordingViewModel.translatedList.isEmpty {
+                Divider()
+                Text("Translation (\(recordingViewModel.targetLanguage.uppercased()))")
+                    .font(.headline)
+                    .padding(.horizontal)
+                    .padding(.top)
+
+                ScrollView {
+                    VStack(spacing: 8) {
+                        ForEach(recordingViewModel.translatedList.indices, id: \.self) { index in
+                            Text(recordingViewModel.translatedList[index])
+                                .padding()
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(Color.blue.opacity(0.1))
+                                .cornerRadius(8)
+                                .font(.system(size: 14, weight: .semibold))
+                        }
+                    }
+                    .padding(.horizontal)
+                }
             }
 
             Divider().padding(.top, 8)

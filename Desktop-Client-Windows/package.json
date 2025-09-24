@@ -1,0 +1,33 @@
+{
+  "name": "whisperlive-windows-client",
+  "version": "1.0.0",
+  "description": "Windows desktop client for WhisperLive real-time STT with translation",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "dist": "electron-builder --publish=never"
+  },
+  "dependencies": {
+    "electron": "^28.0.0",
+    "ws": "^8.14.2"
+  },
+  "devDependencies": {
+    "electron-builder": "^24.6.4"
+  },
+  "build": {
+    "appId": "com.example.whisperlive.windows",
+    "productName": "WhisperLive Windows Client",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*",
+      "!node_modules/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "icon.ico"
+    }
+  }
+}
