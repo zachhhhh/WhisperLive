@@ -37,7 +37,7 @@ class AudioStreamer {
     func configureAudioSession() {
         let session = AVAudioSession.sharedInstance()
         do {
-            try session.setCategory(.playAndRecord, mode: .default, options: [.allowBluetooth, .defaultToSpeaker])
+            try session.setCategory(.playAndRecord, mode: .default, options: [.allowBluetoothHFP, .defaultToSpeaker])
             try session.setPreferredSampleRate(48000)
             try session.setPreferredInputNumberOfChannels(1)
             try session.setMode(.videoChat)
@@ -87,6 +87,7 @@ class AudioStreamer {
             print("AVAudioEngine started.")
         } catch {
             print("Failed to start AVAudioEngine: \(error.localizedDescription)")
+            isStreaming = false
         }
     }
 

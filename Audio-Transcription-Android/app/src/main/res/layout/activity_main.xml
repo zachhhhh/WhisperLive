@@ -48,6 +48,21 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Model Selection -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Model:"
+            android:textSize="14sp"
+            android:layout_marginTop="8dp" />
+
+        <Spinner
+            android:id="@+id/spinnerModel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/model_options"
+            android:layout_marginBottom="8dp" />
+
     </LinearLayout>
 
     <!-- Translation Toggle -->
@@ -74,13 +89,23 @@
         android:textSize="18sp"
         style="@style/Widget.Material3.Button" />
 
+    <!-- Pause/Resume Button -->
+    <Button
+        android:id="@+id/btnPause"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Pause"
+        android:textSize="16sp"
+        android:visibility="gone"
+        style="@style/Widget.Material3.Button"
+        android:layout_marginTop="8dp" />
     <!-- Transcription Display -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:layout_marginTop="16dp">
-
+ 
         <TextView
             android:id="@+id/tvTranscription"
             android:layout_width="match_parent"
@@ -89,8 +114,18 @@
             android:textSize="16sp"
             android:padding="8dp"
             android:background="@drawable/card_background" />
-
+ 
     </ScrollView>
+
+    <!-- Clear Button -->
+    <Button
+        android:id="@+id/btnClear"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Clear Text"
+        android:textSize="16sp"
+        style="@style/Widget.Material3.Button"
+        android:layout_marginTop="8dp" />
 
     <!-- Translation Display -->
     <LinearLayout
@@ -139,19 +174,9 @@
             android:id="@+id/premiumBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Go Premium (Remove Ads)"
+            android:text="@string/premium_button_default"
             android:visibility="visible" />
 
     </LinearLayout>
-
-    <!-- Ad Container -->
-    <LinearLayout
-        android:id="@+id/adContainer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:visibility="visible"
-        android:layout_marginTop="8dp" />
 
 </LinearLayout>

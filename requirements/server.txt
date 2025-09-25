@@ -19,5 +19,5 @@ librosa
 openvino
 openvino-genai
 openvino-tokenizers
-optimum 
+optimum[exporters]
 optimum-intel

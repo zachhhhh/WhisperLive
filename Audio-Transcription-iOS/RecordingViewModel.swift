@@ -31,6 +31,7 @@ class AudioViewModel: ObservableObject {
     @Published var targetLanguage: String = "en"
     @Published var translatedList: [String] = []     // Live translated transcription output
     @Published var finalTranslatedScript: String = "" // Final translated script
+    @Published var statusBanner: String? = nil        // Latest status/warning message from server
 
     private var timer: Timer?
     private var elapsedTime: Int = 0
@@ -50,6 +51,24 @@ class AudioViewModel: ObservableObject {
         audioStreamer = AudioStreamer(webSocket: audioWebSocket!)
 
         isLoading = true
+        statusBanner = nil
+        audioWebSocket?.onStatusMessage = { [weak self] status, message in
+            guard let self = self else { return }
+            DispatchQueue.main.async {
+                switch status.uppercased() {
+                case "WARNING", "ERROR":
+                    self.statusBanner = message ?? status
+                case "WAIT":
+                    if let message = message {
+                        self.statusBanner = "Server busy: \(message)"
+                    } else {
+                        self.statusBanner = "Server busy. Please wait..."
+                    }
+                default:
+                    self.statusBanner = nil
+                }
+            }
+        }
 
         // Handle server transcription message
         audioWebSocket?.onTranscriptionReceived = { [weak self] text in
@@ -67,6 +86,7 @@ class AudioViewModel: ObservableObject {
                 self.elapsedTime = 0
                 self.startTimer()
                 self.audioStreamer?.startStreaming()
+                self.statusBanner = nil
             }
         }
     }

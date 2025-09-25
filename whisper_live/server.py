@@ -145,15 +145,17 @@ class BackendType(Enum):
 class TranscriptionServer:
     RATE = 16000
 
-    def __init__(self):
+    def __init__(self, translation_model_path: Optional[str] = None):
         self.client_manager = None
         self.no_voice_activity_chunks = 0
         self.use_vad = True
         self.single_model = False
+        self.translation_model_path = translation_model_path
 
     def initialize_client(
         self, websocket, options, faster_whisper_custom_model_path,
         whisper_tensorrt_path, trt_multilingual, trt_py_session=False,
+        translation_model_path=None,
     ):
         client: Optional[ServeClientBase] = None
 
@@ -174,7 +176,8 @@ class TranscriptionServer:
                 websocket=websocket,
                 translation_queue=translation_queue,
                 target_language=target_language,
-                send_last_n_segments=options.get("send_last_n_segments", 10)
+                send_last_n_segments=options.get("send_last_n_segments", 10),
+                model_path=translation_model_path or self.translation_model_path,
             )
             
             # Start translation thread
@@ -296,8 +299,15 @@ class TranscriptionServer:
             return False
         return np.frombuffer(frame_data, dtype=np.float32)
 
-    def handle_new_connection(self, websocket, faster_whisper_custom_model_path,
-                              whisper_tensorrt_path, trt_multilingual, trt_py_session=False):
+    def handle_new_connection(
+        self,
+        websocket,
+        faster_whisper_custom_model_path,
+        whisper_tensorrt_path,
+        trt_multilingual,
+        trt_py_session=False,
+        translation_model_path=None,
+    ):
         try:
             logging.info("New client connected")
             options = websocket.recv()
@@ -310,8 +320,15 @@ class TranscriptionServer:
 
             if self.backend.is_tensorrt():
                 self.vad_detector = VoiceActivityDetector(frame_rate=self.RATE)
-            self.initialize_client(websocket, options, faster_whisper_custom_model_path,
-                                   whisper_tensorrt_path, trt_multilingual, trt_py_session=trt_py_session)
+            self.initialize_client(
+                websocket,
+                options,
+                faster_whisper_custom_model_path,
+                whisper_tensorrt_path,
+                trt_multilingual,
+                trt_py_session=trt_py_session,
+                translation_model_path=translation_model_path or self.translation_model_path,
+            )
             return True
         except json.JSONDecodeError:
             logging.error("Failed to decode JSON from client")
@@ -342,13 +359,16 @@ class TranscriptionServer:
         client.add_frames(frame_np)
         return True
 
-    def recv_audio(self,
-                   websocket,   
-                   backend: BackendType = BackendType.FASTER_WHISPER,
-                   faster_whisper_custom_model_path=None,
-                   whisper_tensorrt_path=None,
-                   trt_multilingual=False,
-                   trt_py_session=False):
+    def recv_audio(
+        self,
+        websocket,
+        backend: BackendType = BackendType.FASTER_WHISPER,
+        faster_whisper_custom_model_path=None,
+        whisper_tensorrt_path=None,
+        trt_multilingual=False,
+        trt_py_session=False,
+        translation_model_path=None,
+    ):
         """
         Receive audio chunks from a client in an infinite loop.
 
@@ -374,8 +394,14 @@ class TranscriptionServer:
             Exception: If there is an error during the audio frame processing.
         """
         self.backend = backend
-        if not self.handle_new_connection(websocket, faster_whisper_custom_model_path,
-                                          whisper_tensorrt_path, trt_multilingual, trt_py_session=trt_py_session):
+        if not self.handle_new_connection(
+            websocket,
+            faster_whisper_custom_model_path,
+            whisper_tensorrt_path,
+            trt_multilingual,
+            trt_py_session=trt_py_session,
+            translation_model_path=translation_model_path,
+        ):
             return
 
         try:
@@ -392,18 +418,21 @@ class TranscriptionServer:
                 websocket.close()
             del websocket
 
-    def run(self,
-            host,
-            port=9090,
-            backend="tensorrt",
-            faster_whisper_custom_model_path=None,
-            whisper_tensorrt_path=None,
-            trt_multilingual=False,
-            trt_py_session=False,
-            single_model=False,
-            max_clients=4,
-            max_connection_time=600,
-            cache_path="~/.cache/whisper-live/"):
+    def run(
+        self,
+        host,
+        port=9090,
+        backend="tensorrt",
+        faster_whisper_custom_model_path=None,
+        whisper_tensorrt_path=None,
+        trt_multilingual=False,
+        trt_py_session=False,
+        single_model=False,
+        max_clients=4,
+        max_connection_time=600,
+        cache_path="~/.cache/whisper-live/",
+        translation_model_path=None,
+    ):
         """
         Run the transcription server.
 
@@ -412,6 +441,8 @@ class TranscriptionServer:
             port (int): The port number to bind the server.
         """
         self.cache_path = cache_path
+        if translation_model_path is not None:
+            self.translation_model_path = translation_model_path
         self.client_manager = ClientManager(max_clients, max_connection_time)
         if faster_whisper_custom_model_path is not None and not os.path.exists(faster_whisper_custom_model_path):
             raise ValueError(f"Custom faster_whisper model '{faster_whisper_custom_model_path}' is not a valid path.")
@@ -434,6 +465,7 @@ class TranscriptionServer:
                 whisper_tensorrt_path=whisper_tensorrt_path,
                 trt_multilingual=trt_multilingual,
                 trt_py_session=trt_py_session,
+                translation_model_path=self.translation_model_path,
             ),
             host,
             port
@@ -486,4 +518,3 @@ class TranscriptionServer:
             if hasattr(client, 'translation_thread') and client.translation_thread:
                 client.translation_thread.join(timeout=2.0)
             self.client_manager.remove_client(websocket)
-

@@ -7,9 +7,6 @@ target 'WhisperLive-iOS-Client' do
 
   # Pods for WhisperLive-iOS-Client
 
-  # Monetization: Google Mobile Ads
-  pod 'Google-Mobile-Ads-SDK', '11.8.0'
-
   # IAP is built-in with StoreKit, no pod needed
 
   target 'WhisperLive-iOS-ClientTests' do

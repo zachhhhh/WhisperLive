@@ -14,13 +14,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdSize
-import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.LoadAdError
-import com.google.android.gms.ads.MobileAds
-import com.google.android.gms.ads.interstitial.InterstitialAd
-import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.*
@@ -30,11 +23,17 @@ import org.json.JSONObject
 import java.net.URI
 import java.nio.ByteBuffer
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.SharedPreferences
+
 class MainActivity : AppCompatActivity() {
     private lateinit var billingManager: BillingManager
-    private var interstitialAd: InterstitialAd? = null
-    private lateinit var adView: AdView
-    private lateinit var adContainer: LinearLayout
+    private lateinit var btnPause: Button
+    private lateinit var btnClear: Button
+    private lateinit var spinnerModel: Spinner
+
+    private lateinit var sharedPreferences: SharedPreferences
 
     private lateinit var etHost: EditText
     private lateinit var etPort: EditText
@@ -47,14 +46,16 @@ class MainActivity : AppCompatActivity() {
     private lateinit var premiumBtn: Button
 
     private var webSocketClient: WebSocketClient? = null
+    private var isWebSocketOpen = false
     private var audioRecord: AudioRecord? = null
     private var isRecording = false
     private var isPaused = false
     private var recordingJob: Job? = null
 
     private val handler = Handler(Looper.getMainLooper())
-    private val languages = arrayOf("en", "fr", "es", "hi", "ja")
-    private val languageNames = arrayOf("English", "French", "Spanish", "Hindi", "Japanese")
+    private val languages = arrayOf("en", "fr", "es", "hi", "ja", "de", "it", "pt", "zh", "ar", "ru", "ko")
+    private val languageNames = arrayOf("English", "French", "Spanish", "Hindi", "Japanese", "German", "Italian", "Portuguese", "Chinese", "Arabic", "Russian", "Korean")
+    private val models = arrayOf("tiny", "base", "small", "medium", "large")
 
     private val SAMPLE_RATE = 16000
     private val CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO
@@ -67,19 +68,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        sharedPreferences = getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+
         // Monetization setup
         billingManager = BillingManager(this)
-        MobileAds.initialize(this) {}
-        loadInterstitialAd()
-
-        // Add banner ad
-        adContainer = findViewById(R.id.adContainer)
-        adView = AdView(this)
-        adView.adUnitId = "ca-app-pub-3940256099942544/6300978111" // Test ID
-        adView.setAdSize(AdSize.BANNER)
-        adContainer.addView(adView)
-        val adRequest = AdRequest.Builder().build()
-        adView.loadAd(adRequest)
 
         etHost = findViewById(R.id.etHost)
         etPort = findViewById(R.id.etPort)
@@ -90,19 +82,34 @@ class MainActivity : AppCompatActivity() {
         tvTranslation = findViewById(R.id.tvTranslation)
         translationLayout = findViewById(R.id.translationLayout)
         premiumBtn = findViewById(R.id.premiumBtn)
+        btnPause = findViewById(R.id.btnPause)
+        btnClear = findViewById(R.id.btnClear)
+        spinnerModel = findViewById(R.id.spinnerModel)
         premiumBtn.isEnabled = false
         premiumBtn.text = getString(R.string.premium_button_loading)
         premiumBtn.setOnClickListener {
             billingManager.launchBillingFlow(this, billingManager.productDetails.value.firstOrNull() ?: return@setOnClickListener)
         }
 
-        etHost.setText("localhost")
-        etPort.setText("9090")
+        // Load saved settings
+        etHost.setText(sharedPreferences.getString("host", "localhost"))
+        etPort.setText(sharedPreferences.getString("port", "9090"))
+        val savedModelIndex = sharedPreferences.getInt("model_index", 2)
+        spinnerModel.setSelection(savedModelIndex)
+        val savedTranslation = sharedPreferences.getBoolean("translation_enabled", false)
+        switchTranslation.isChecked = savedTranslation
+        if (savedTranslation) {
+            spinnerLanguage.visibility = View.VISIBLE
+            translationLayout.visibility = View.VISIBLE
+        }
+        val savedLanguageIndex = sharedPreferences.getInt("language_index", 0)
+        spinnerLanguage.setSelection(savedLanguageIndex)
 
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, languageNames)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerLanguage.adapter = adapter
         spinnerLanguage.setSelection(0) // Default English
+        spinnerModel.setSelection(2) // Default "small"
 
         switchTranslation.setOnCheckedChangeListener { _, isChecked ->
             spinnerLanguage.visibility = if (isChecked) View.VISIBLE else View.GONE
@@ -121,25 +128,28 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        btnPause.setOnClickListener {
+            if (isRecording) {
+                if (isPaused) {
+                    resumeRecording()
+                } else {
+                    pauseRecording()
+                }
+            }
+        }
+
+        btnClear.setOnClickListener {
+            tvTranscription.text = "Transcription will appear here..."
+            tvTranslation.text = "Translation will appear here..."
+        }
+
         // Premium check
         lifecycleScope.launch {
             billingManager.purchaseState.collectLatest { state ->
                 if (state == PurchaseState.Purchased) {
-                    // Hide ads
-                    adView.pause()
-                    adView.visibility = View.GONE
-                    adContainer.visibility = View.GONE
                     premiumBtn.visibility = View.GONE
-                    interstitialAd = null
                 } else {
-                    // Show ads
-                    adContainer.visibility = View.VISIBLE
-                    adView.visibility = View.VISIBLE
-                    adView.resume()
                     premiumBtn.visibility = View.VISIBLE
-                    if (state == PurchaseState.NotPurchased) {
-                        showInterstitialAd()
-                    }
                 }
             }
         }
@@ -165,22 +175,6 @@ class MainActivity : AppCompatActivity() {
         spinnerLanguage.visibility = View.GONE
     }
 
-    private fun loadInterstitialAd() {
-        InterstitialAd.load(this, "ca-app-pub-3940256099942544/1033173712", AdRequest.Builder().build(), object : InterstitialAdLoadCallback() {
-            override fun onAdLoaded(ad: InterstitialAd) {
-                interstitialAd = ad
-            }
-            override fun onAdFailedToLoad(error: LoadAdError) {
-                interstitialAd = null
-            }
-        })
-    }
-
-    private fun showInterstitialAd() {
-        interstitialAd?.show(this)
-        interstitialAd = null
-        loadInterstitialAd()
-    }
 
     private fun checkPermissions(): Boolean {
         return ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
@@ -201,9 +195,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("MissingPermission")
     private fun startRecording() {
         val host = etHost.text.toString().trim()
         val portStr = etPort.text.toString().trim()
+
+        // Save settings
+        with(sharedPreferences.edit()) {
+            putString("host", host)
+            putString("port", portStr)
+            putInt("model_index", spinnerModel.selectedItemPosition)
+            putBoolean("translation_enabled", switchTranslation.isChecked)
+            putInt("language_index", spinnerLanguage.selectedItemPosition)
+            apply()
+        }
         if (host.isEmpty() || portStr.isEmpty()) {
             Toast.makeText(this, "Please enter host and port", Toast.LENGTH_SHORT).show()
             return
@@ -212,6 +217,7 @@ class MainActivity : AppCompatActivity() {
         val port = portStr.toIntOrNull() ?: 9090
         val enableTranslation = switchTranslation.isChecked
         val targetLanguage = languages[spinnerLanguage.selectedItemPosition]
+        val model = models[spinnerModel.selectedItemPosition]
 
         tvTranscription.text = "Connecting..."
         tvTranslation.text = "Translation will appear here..."
@@ -224,7 +230,7 @@ class MainActivity : AppCompatActivity() {
             put("uid", uid)
             put("language", "en")
             put("task", "transcribe")
-            put("model", "small")
+            put("model", model)
             put("use_vad", true)
             put("enable_translation", enableTranslation)
             put("target_language", targetLanguage)
@@ -234,6 +240,7 @@ class MainActivity : AppCompatActivity() {
         val uri = URI("ws://$host:$port")
         webSocketClient = object : WebSocketClient(uri) {
             override fun onOpen(handshake: ServerHandshake) {
+                isWebSocketOpen = true
                 runOnUiThread {
                     Toast.makeText(this@MainActivity, "Connected", Toast.LENGTH_SHORT).show()
                     tvTranscription.text = "Listening..."
@@ -252,6 +259,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onClose(code: Int, reason: String?, remote: Boolean) {
+                isWebSocketOpen = false
                 runOnUiThread {
                     Toast.makeText(this@MainActivity, "Disconnected: $reason", Toast.LENGTH_SHORT).show()
                     tvTranscription.text = "Disconnected"
@@ -259,6 +267,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onError(ex: Exception) {
+                isWebSocketOpen = false
                 runOnUiThread {
                     Toast.makeText(this@MainActivity, "Error: ${ex.message}", Toast.LENGTH_SHORT).show()
                 }
@@ -278,6 +287,8 @@ class MainActivity : AppCompatActivity() {
 
         if (audioRecord?.state != AudioRecord.STATE_INITIALIZED) {
             Toast.makeText(this, "Failed to initialize AudioRecord", Toast.LENGTH_SHORT).show()
+            audioRecord?.release()
+            audioRecord = null
             return
         }
 
@@ -285,15 +296,22 @@ class MainActivity : AppCompatActivity() {
         isRecording = true
         btnRecord.text = "Stop Recording"
         btnRecord.setBackgroundColor(ContextCompat.getColor(this, android.R.color.holo_red_light))
+        btnPause.visibility = View.VISIBLE
+        btnPause.text = "Pause"
 
         recordingJob = lifecycleScope.launch(Dispatchers.IO) {
             val buffer = FloatArray(BUFFER_SIZE)
             while (isRecording) {
                 if (!isPaused) {
+                    if (!isWebSocketOpen) {
+                        delay(50)
+                        continue
+                    }
                     val read = audioRecord?.read(buffer, 0, BUFFER_SIZE, AudioRecord.READ_BLOCKING) ?: 0
                     if (read > 0) {
                         val bytes = ByteArray(read * 4) // Float32
-                        buffer.forEachIndexed { index, value ->
+                        for (index in 0 until read) {
+                            val value = buffer[index]
                             val bytesOffset = index * 4
                             val intBits = java.lang.Float.floatToIntBits(value)
                             bytes[bytesOffset] = (intBits and 0xff).toByte()
@@ -301,7 +319,19 @@ class MainActivity : AppCompatActivity() {
                             bytes[bytesOffset + 2] = ((intBits shr 16) and 0xff).toByte()
                             bytes[bytesOffset + 3] = ((intBits shr 24) and 0xff).toByte()
                         }
-                        webSocketClient?.send(bytes)
+                        try {
+                            webSocketClient?.send(bytes)
+                        } catch (e: Exception) {
+                            // Exit the loop gracefully if the socket is no longer available
+                            val shouldNotify = isWebSocketOpen
+                            isRecording = false
+                            withContext(Dispatchers.Main) {
+                                stopRecording()
+                                if (shouldNotify) {
+                                    Toast.makeText(this@MainActivity, "Connection lost", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }
                     }
                 } else {
                     delay(100)
@@ -311,29 +341,44 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun stopRecording() {
+        if (!isRecording && audioRecord == null) {
+            return
+        }
         isRecording = false
+        isWebSocketOpen = false
         isPaused = false
         recordingJob?.cancel()
-        audioRecord?.stop()
+        try {
+            audioRecord?.stop()
+        } catch (_: IllegalStateException) {
+            // AudioRecord was not recording; nothing to stop.
+        }
         audioRecord?.release()
         audioRecord = null
-        webSocketClient?.send("END_OF_AUDIO")
+        try {
+            if (webSocketClient?.isOpen == true) {
+                webSocketClient?.send("END_OF_AUDIO")
+            }
+        } catch (_: Exception) {
+            // Socket already closed
+        }
         webSocketClient?.close()
         webSocketClient = null
         btnRecord.text = "Start Recording"
         btnRecord.setBackgroundColor(ContextCompat.getColor(this, android.R.color.holo_green_light))
+        btnPause.visibility = View.GONE
         tvTranscription.append("\n--- End of Recording ---")
         recordingJob = null
     }
 
     private fun pauseRecording() {
         isPaused = true
-        btnRecord.text = "Resume Recording"
+        btnPause.text = "Resume"
     }
 
     private fun resumeRecording() {
         isPaused = false
-        btnRecord.text = "Pause Recording"
+        btnPause.text = "Pause"
     }
 
     private fun handleMessage(message: String) {
@@ -385,19 +430,14 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         stopRecording()
-        adView.destroy()
         billingManager.destroy()
     }
 
     override fun onPause() {
-        adView.pause()
         super.onPause()
     }
 
     override fun onResume() {
         super.onResume()
-        if (billingManager.purchaseState.value != PurchaseState.Purchased) {
-            adView.resume()
-        }
     }
 }

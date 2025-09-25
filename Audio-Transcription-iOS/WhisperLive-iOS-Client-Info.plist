@@ -18,13 +18,9 @@
 	<string>1.0.0</string>
 	<key>CFBundleVersion</key>
 	<integer>1</integer>
-	<key>GADApplicationIdentifier</key>
-	<string>ca-app-pub-3940256099942544~1458002511</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>WhisperLive needs microphone access to capture your voice for live transcription.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>WhisperLive analyzes your speech in real time to produce transcripts.</string>
-	<key>NSUserTrackingUsageDescription</key>
-	<string>This identifier will be used to deliver personalized ads to you.</string>
 </dict>
 </plist>

@@ -17,6 +17,15 @@ struct RecordingView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            if let status = recordingViewModel.statusBanner {
+                Text(status)
+                    .font(.footnote)
+                    .foregroundColor(.white)
+                    .padding(8)
+                    .frame(maxWidth: .infinity)
+                    .background(Color.orange)
+            }
+
             // Server config (only when not recording)
             if !recordingViewModel.isRecording {
                 VStack(alignment: .leading, spacing: 8) {
@@ -68,7 +77,7 @@ struct RecordingView: View {
 
                 // Premium Button (if not premium)
                 if iapManager.purchaseState != .purchased {
-                    Button("Go Premium (Remove Ads)") {
+                    Button("Go Premium") {
                         showPremiumSheet = true
                     }
                     .buttonStyle(.borderedProminent)
@@ -154,8 +163,6 @@ struct RecordingView: View {
             .padding(.bottom, 40)
         }
         .padding(.top)
-        // Add bottom padding when ads are visible so content isn’t covered by the banner
-        .padding(.bottom, iapManager.purchaseState != .purchased ? 50 : 0)
         .background(Color(.systemBackground))
         .overlay(
             Group {
@@ -183,7 +190,7 @@ struct RecordingView: View {
         .sheet(isPresented: $showPremiumSheet) {
             VStack(spacing: 16) {
                 if let product = iapManager.products.first {
-                    Text("Remove Ads for \(product.displayPrice)")
+                    Text("Unlock Premium for \(product.displayPrice)")
                         .font(.headline)
                     Button("Purchase") {
                         iapManager.purchasePremium()
@@ -206,14 +213,6 @@ struct RecordingView: View {
             }
             .padding()
         }
-        .overlay(
-            Group {
-                if iapManager.purchaseState != .purchased {
-                    BannerAdView(adUnitID: "ca-app-pub-3940256099942544/6300978111")
-                        .frame(height: 50)
-                }
-            }, alignment: .bottom
-        )
     }
 }
 

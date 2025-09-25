@@ -39,6 +39,10 @@ if __name__ == "__main__":
                         type=int,
                         default=300,
                         help='Path to cache the converted ctranslate2 models.')
+    parser.add_argument('--translation_model_path', '--translation-model-path',
+                        type=str,
+                        default=None,
+                        help='Filesystem path or Hugging Face repo id for SeamlessM4T ONNX export.')
     parser.add_argument('--cache_path', '-c',
                         type=str,
                         default="~/.cache/whisper-live/",
@@ -53,7 +57,7 @@ if __name__ == "__main__":
         os.environ["OMP_NUM_THREADS"] = str(args.omp_num_threads)
 
     from whisper_live.server import TranscriptionServer
-    server = TranscriptionServer()
+    server = TranscriptionServer(translation_model_path=args.translation_model_path)
     server.run(
         "0.0.0.0",
         port=args.port,
@@ -65,5 +69,6 @@ if __name__ == "__main__":
         single_model=not args.no_single_model,
         max_clients=args.max_clients,
         max_connection_time=args.max_connection_time,
-        cache_path=args.cache_path
+        cache_path=args.cache_path,
+        translation_model_path=args.translation_model_path,
     )

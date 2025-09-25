@@ -9,9 +9,9 @@ src="https://img.youtube.com/vi/0PHWCApIcCI/0.jpg" style="background-color:rgba(
 <br><br>
 </h2>
 
-This project is a real-time transcription application that uses the OpenAI Whisper model
-to convert speech input into text output. It can be used to transcribe both live audio
-input from microphone and pre-recorded audio files.
+WhisperLive is a real-time speech-to-text system based on OpenAI's Whisper, featuring a client-server architecture for low-latency transcription over WebSockets. It supports backends like faster_whisper, TensorRT, and OpenVINO, with VAD and multi-platform clients (iOS, Android, desktop, browser). Objective: Integrate Meta's SeamlessM4T v2 Large (ONNX-exported) for optional real-time translation of transcribed speech to any user-selected language.
+
+It can be used to transcribe both live audio input from microphone and pre-recorded audio files.
 
 - [Installation](#installation)
 - [Getting Started](#getting-started)
@@ -101,8 +101,12 @@ To control the number of threads used by OpenMP, you can set the `OMP_NUM_THREAD
 ```bash
 python3 run_server.py --port 9090 \
                       --backend faster_whisper \
-                      --omp_num_threads 4
+                      --omp_num_threads 4 \
+                      --translation_model_path /path/to/seamless_m4t_v2_large_onnx
 ```
+
+- `--translation_model_path` can point to a local SeamlessM4T v2 Large ONNX export directory or a Hugging Face repo id.
+  If omitted, WhisperLive will read the same value from the `SEAMLESS_M4T_MODEL_PATH` environment variable or fall back to the default `seamless_m4t_v2_large_onnx` id.
 
 #### Single model mode
 

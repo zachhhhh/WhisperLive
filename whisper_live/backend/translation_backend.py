@@ -1,13 +1,19 @@
 import json
 import logging
+import os
 import threading
 import time
 import queue
 from typing import Dict, Any, Optional
+
 import numpy as np
-import onnxruntime as ort
-from transformers import T5Tokenizer
+import torch
+from transformers import SeamlessM4TProcessor, AutoModelForSeq2SeqLM
+from optimum.onnxruntime import ORTModelForSeq2SeqLM
 from whisper_live.backend.base import ServeClientBase
+
+
+DEFAULT_SEAMLESS_MODEL_ID = "seamless_m4t_v2_large_onnx"
 
 
 class ServeClientTranslation(ServeClientBase):
@@ -24,7 +30,8 @@ class ServeClientTranslation(ServeClientBase):
         translation_queue,
         target_language="fr",
         send_last_n_segments=10,
-        model_name="seamless_m4t_v2_large_onnx"  # Path to exported ONNX model directory
+        model_path: Optional[str] = None,  # Path or HF repo id for exported ONNX model directory
+        auto_load_model: bool = True,
     ):
         """
         Initialize the translation client.
@@ -35,40 +42,92 @@ class ServeClientTranslation(ServeClientBase):
             translation_queue (queue.Queue): Queue containing completed segments to translate
             target_language (str): Target language code (default: "fr" for French)
             send_last_n_segments (int): Number of recent translated segments to send
-            model_name (str): Translation model name to use
+            model_path (str | None): Filesystem path or Hugging Face repo id that contains the SeamlessM4T ONNX export.
+                                     Defaults to the SEAMLESS_M4T_MODEL_PATH environment variable or the built-in id.
+            auto_load_model (bool): When True, attempt to load the model immediately.
         """
         super().__init__(client_uid, websocket, send_last_n_segments)
         self.translation_queue = translation_queue
         self.target_language = target_language
-        self.model_name = model_name
+        self.model_path = model_path or os.getenv(
+            "SEAMLESS_M4T_MODEL_PATH",
+            DEFAULT_SEAMLESS_MODEL_ID,
+        )
         self.translated_segments = []
         self.translation_model = None
-        self.tokenizer = None
+        self.processor: Optional[SeamlessM4TProcessor] = None
         self.device = None
         self.model_loaded = False
-        self.load_translation_model()
-        
+        self.translation_available = False
+        self._sent_status_message = False
+        self._uses_onnx = False
+
+        if auto_load_model:
+            self.load_translation_model()
+
     def load_translation_model(self):
         """Load the ONNX translation model and tokenizer."""
         try:
-            # Load tokenizer (shared with export)
-            self.tokenizer = T5Tokenizer.from_pretrained("facebook/seamless-m4t-v2-large")
-            
-            # Load ONNX model (assume exported to model_name directory)
-            providers = ['CUDAExecutionProvider', 'CPUExecutionProvider'] if ort.get_device() == 'GPU' else ['CPUExecutionProvider']
-            self.translation_model = ort.InferenceSession(
-                f"{self.model_name}/model.onnx",  # Encoder-decoder or full model ONNX
-                providers=providers
-            )
-            
+            # Load processor and model
+            self.processor = SeamlessM4TProcessor.from_pretrained(self.model_path)
+            try:
+                self.translation_model = ORTModelForSeq2SeqLM.from_pretrained(
+                    self.model_path,
+                    provider="CPUExecutionProvider"
+                )
+                self.device = "cpu"
+                self._uses_onnx = True
+                logging.info(
+                    "ONNX translation model loaded successfully from '%s'. Target language: %s",
+                    self.model_path,
+                    self.target_language,
+                )
+            except Exception as ort_error:
+                logging.warning(
+                    "Failed to load ONNX translation model (%s). Falling back to PyTorch.",
+                    ort_error,
+                )
+                self.translation_model = AutoModelForSeq2SeqLM.from_pretrained(self.model_path)
+                self.device = "cuda" if torch.cuda.is_available() else "cpu"
+                self.translation_model.to(self.device)
+                self._uses_onnx = False
+                logging.info(
+                    "PyTorch translation model loaded successfully on %s from '%s'. Target language: %s",
+                    self.device,
+                    self.model_path,
+                    self.target_language,
+                )
+
             self.model_loaded = True
-            logging.info(f"ONNX translation model loaded successfully. Target language: {self.target_language}")
+            self.translation_available = True
         except Exception as e:
-            logging.error(f"Failed to load ONNX translation model: {e}")
+            logging.error(f"Failed to load translation model: {e}")
             self.translation_model = None
-            self.tokenizer = None
             self.model_loaded = False
-    
+            self.translation_available = False
+            self._notify_translation_unavailable(str(e))
+
+    def _notify_translation_unavailable(self, error_message: str):
+        """Send a warning to the client when translation assets are missing."""
+        if self._sent_status_message:
+            return
+        payload = {
+            "uid": self.client_uid,
+            "status": "WARNING",
+            "message": (
+                "Translation model unavailable. "
+                "Export SeamlessM4T v2 Large to ONNX (see scripts/export_seamless_m4t.py) "
+                "and set SEAMLESS_M4T_MODEL_PATH or --translation-model-path accordingly."
+            )
+        }
+        if error_message:
+            payload["details"] = error_message
+        try:
+            self.websocket.send(json.dumps(payload))
+            self._sent_status_message = True
+        except Exception as send_error:
+            logging.error(f"[ERROR]: Sending translation warning to client: {send_error}")
+
     def translate_text(self, text: str) -> str:
         """
         Translate a single text segment using ONNX.
@@ -83,30 +142,31 @@ class ServeClientTranslation(ServeClientBase):
             return text
             
         try:
-            # Tokenize input
-            inputs = self.tokenizer(
+            # Prepare input for text-to-text translation
+            inputs = self.processor(
                 text,
-                return_tensors="np",
                 src_lang="eng",
                 tgt_lang=self.target_language,
-                padding=True,
-                truncation=True,
-                max_length=512
+                return_tensors="pt"
             )
             
-            # Run ONNX inference (assume exported encoder-decoder pipeline)
-            # For simplicity, assume single session for generation; in practice, use encoder then decoder loop
-            outputs = self.translation_model.run(None, {
-                'input_ids': inputs['input_ids'],
-                'attention_mask': inputs['attention_mask'],
-                'decoder_input_ids': np.array([[self.tokenizer.pad_token_id]]),  # BOS
-            })
-            
-            generated_ids = outputs[0]  # Adjust based on export (e.g., logits to tokens)
-            
+            # Generate translation
+            if not self._uses_onnx:
+                inputs = {k: v.to(self.device) for k, v in inputs.items()}
+
+            generated_ids = self.translation_model.generate(
+                **inputs,
+                max_length=512,
+                num_beams=5,
+                early_stopping=True,
+            )
+
+            if not self._uses_onnx:
+                generated_ids = generated_ids.to("cpu")
+
             # Decode output
-            output = self.tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
-            return output[0] if output else text
+            translated_text = self.processor.batch_decode(generated_ids, skip_special_tokens=True)
+            return translated_text[0]
             
         except Exception as e:
             logging.error(f"ONNX translation failed for text '{text}': {e}")
@@ -204,8 +264,8 @@ class ServeClientTranslation(ServeClientBase):
             language (str): New target language code
         """
         self.target_language = language
-        if self.tokenizer:
-            self.tokenizer.tgt_lang = language
+        if self.processor:
+            self.processor.tgt_lang = language
             logging.info(f"Target language changed to: {language}")
     
     def cleanup(self):
@@ -223,6 +283,6 @@ class ServeClientTranslation(ServeClientBase):
         if self.translation_model:
             del self.translation_model
             self.translation_model = None
-        if self.tokenizer:
-            del self.tokenizer
-            self.tokenizer = None
+        if self.processor:
+            del self.processor
+            self.processor = None

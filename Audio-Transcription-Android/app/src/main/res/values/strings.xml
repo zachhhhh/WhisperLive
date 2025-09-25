@@ -1,6 +1,13 @@
 <resources>
     <string name="app_name">WhisperLive Android</string>
     <string name="premium_button_loading">Loading premium options...</string>
-    <string name="premium_button_default">Go Premium (Remove Ads)</string>
+    <string name="premium_button_default">Go Premium</string>
     <string name="premium_button_with_price">Go Premium - %1$s</string>
+    <string-array name="model_options">
+        <item>tiny</item>
+        <item>base</item>
+        <item>small</item>
+        <item>medium</item>
+        <item>large</item>
+    </string-array>
 </resources>

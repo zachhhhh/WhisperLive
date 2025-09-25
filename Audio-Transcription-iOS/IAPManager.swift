@@ -12,7 +12,7 @@ class IAPManager: ObservableObject {
     
     private var transactionListener: Task<Void, Never>? = nil
     
-    static let premiumProductID = "com.example.whisperlive.premium_remove_ads"
+    static let premiumProductID = "com.zach.whisperlive.removeads"
     
     init() {
         startTransactionListener()
@@ -185,7 +185,7 @@ class IAPManager: ObservableObject {
     }
 
     func isPremium() -> Bool {
-        purchaseState == .purchased
+        true  // Bypass for local testing
     }
     
     deinit {

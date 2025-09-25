@@ -22,6 +22,7 @@ class AudioWebSocket: NSObject, URLSessionWebSocketDelegate {
 
     var onServerReady: (() -> Void)?
     var onTranscriptionReceived: ((String) -> Void)?
+    var onStatusMessage: ((String, String?) -> Void)?
 
     var enableTranslation: Bool = false
     var targetLanguage: String = "en"
@@ -176,7 +177,22 @@ class AudioWebSocket: NSObject, URLSessionWebSocketDelegate {
             do {
                 if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
                     if let status = json["status"] as? String {
-                        handleStatusMessage(status: status, message: json["message"] as? String)
+                        var messageText: String? = nil
+                        if let rawMessage = json["message"] {
+                            if let stringMessage = rawMessage as? String {
+                                messageText = stringMessage
+                            } else if let numberMessage = rawMessage as? NSNumber {
+                                messageText = numberMessage.stringValue
+                            } else {
+                                messageText = String(describing: rawMessage)
+                            }
+                        }
+                        let detailsText = json["details"] as? String
+                        handleStatusMessage(
+                            status: status,
+                            message: messageText,
+                            details: detailsText
+                        )
                         return
                     }
 
@@ -210,7 +226,7 @@ class AudioWebSocket: NSObject, URLSessionWebSocketDelegate {
     }
 
     /// Handles status message JSON from the server.
-    private func handleStatusMessage(status: String, message: String?) {
+    private func handleStatusMessage(status: String, message: String?, details: String?) {
         switch status {
         case "WAIT":
             print("Waiting: \(message ?? "")")
@@ -221,6 +237,13 @@ class AudioWebSocket: NSObject, URLSessionWebSocketDelegate {
         default:
             print("\(status): \(message ?? "")")
         }
+
+        var combined = message ?? ""
+        if let details = details, !details.isEmpty {
+            combined = combined.isEmpty ? details : combined + "\n" + details
+        }
+
+        onStatusMessage?(status, combined.isEmpty ? nil : combined)
     }
 
     /// Sends the "END_OF_AUDIO" signal to the server.
