@@ -331,6 +331,12 @@ class ServeClientBase(object):
                     completed=False
                 )
 
+                if self.translation_queue and self.current_out.strip():
+                    try:
+                        self.translation_queue.put(last_segment.copy(), timeout=0.1)
+                    except queue.Full:
+                        logging.debug("Translation queue is full, skipping partial segment")
+
         # Handle repeated output logic.
         if self.current_out.strip() == self.prev_out.strip() and self.current_out != '':
             self.same_output_count += 1

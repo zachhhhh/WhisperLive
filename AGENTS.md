@@ -28,6 +28,7 @@ WhisperLive is a real-time speech-to-text system based on OpenAI's Whisper, feat
 - Run `pytest tests` after activating the virtualenv; expect integration tests to spawn `run_server.py` and write artifacts in the repo root.
 - For quick checks, target modules with `pytest tests/test_client.py -k WebSocket`; remove generated `.srt` files when adding new cases.
 - Maintain test data under `assets/` and prefer deterministic audio samples with documented expected output.
+- After code change, always test what was built works and fix if issues occur.
 
 ## Commit & Pull Request Guidelines
 
@@ -39,3 +40,11 @@ WhisperLive is a real-time speech-to-text system based on OpenAI's Whisper, feat
 
 - Do not commit model weights, API keys, or customer audio; rely on `.gitignore` for cached models (`~/.cache/whisper-live/`).
 - Document required environment tweaks (e.g., `OMP_NUM_THREADS`, CUDA paths) within your changes to aid operators and downstream agents.
+
+## Agent Best Practices
+
+- Follow best practices in all code changes and implementations.
+- Consult the latest documents from Context7 for up-to-date library and API information.
+- Use the latest versions and syntax at all times if possible, ensuring compatibility.
+- Include correct, descriptive error messages and comprehensive logging for all potential failure points to facilitate debugging and error diagnosis.
+- Always test after adding new code. If issues occur, always fix them or ask for help/direction if needed.

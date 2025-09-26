@@ -88,6 +88,7 @@ class ServeClientFasterWhisper(ServeClientBase):
         if self.model_size_or_path is None:
             return
         logging.info(f"Using Device={device} with precision {self.compute_type}")
+        logging.info("Initializing model (0%)")
     
         try:
             if single_model:
@@ -132,17 +133,21 @@ class ServeClientFasterWhisper(ServeClientBase):
 
         if model_ref in self.model_sizes:
             model_to_load = model_ref
+            logging.info("Downloading model files (25%)")
         else:
             logging.info(f"Model not in model_sizes")
             if os.path.isdir(model_ref) and ctranslate2.contains_model(model_ref):
                 model_to_load = model_ref
+                logging.info("Model files ready (25%)")
             else:
+                logging.info("Downloading model files (25%)")
                 local_snapshot = snapshot_download(
                     repo_id = model_ref,
                     repo_type = "model",
                 )
                 if ctranslate2.contains_model(local_snapshot):
                     model_to_load = local_snapshot
+                    logging.info("Model files ready (25%)")
                 else:
                     cache_root = os.path.expanduser(os.path.join(self.cache_path, "whisper-ct2-models/"))
                     os.makedirs(cache_root, exist_ok=True)
@@ -150,9 +155,9 @@ class ServeClientFasterWhisper(ServeClientBase):
                     ct2_dir = os.path.join(cache_root, safe_name)
 
                     if not ctranslate2.contains_model(ct2_dir):
-                        logging.info(f"Converting '{model_ref}' to CTranslate2 @ {ct2_dir}")
+                        logging.info("Converting to CTranslate2 (50%)")
                         ct2_converter = ctranslate2.converters.TransformersConverter(
-                            local_snapshot, 
+                            local_snapshot,
                             copy_files=["tokenizer.json", "preprocessor_config.json"]
                         )
                         ct2_converter.convert(
@@ -160,15 +165,17 @@ class ServeClientFasterWhisper(ServeClientBase):
                             quantization=self.compute_type,
                             force=False,  # skip if already up-to-date
                         )
+                        logging.info("Conversion complete (50%)")
                     model_to_load = ct2_dir
 
-        logging.info(f"Loading model: {model_to_load}")
+        logging.info("Loading into memory (75%)")
         self.transcriber = WhisperModel(
             model_to_load,
             device=device,
             compute_type=self.compute_type,
             local_files_only=False,
         )
+        logging.info("Model ready (100%)")
 
     def set_language(self, info):
         """

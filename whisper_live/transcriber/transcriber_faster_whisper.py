@@ -588,6 +588,7 @@ class WhisperModel:
         **model_kwargs,
     ):
         """Initializes the Whisper model.
+        logging.info("Loading model files (0%)")
 
         Args:
           model_size_or_path: Size of the model to use (tiny, tiny.en, base, base.en,
@@ -633,6 +634,8 @@ class WhisperModel:
                 cache_dir=download_root,
             )
 
+        logging.info("Loading tokenizer (25%)")
+        logging.info("Loading CTranslate2 Whisper model (80%)")
         self.model = ctranslate2.models.Whisper(
             model_path,
             device=device,
@@ -643,7 +646,10 @@ class WhisperModel:
             files=files,
             **model_kwargs,
         )
+        logging.info("CTranslate2 Whisper model loaded (85%)")
+        logging.info("Loading feature extractor (50%)")
 
+        logging.info("Loading tokenizer (90%)")
         tokenizer_file = os.path.join(model_path, "tokenizer.json")
         if tokenizer_bytes:
             self.hf_tokenizer = tokenizers.Tokenizer.from_buffer(tokenizer_bytes)
@@ -653,8 +659,11 @@ class WhisperModel:
             self.hf_tokenizer = tokenizers.Tokenizer.from_pretrained(
                 "openai/whisper-tiny" + ("" if self.model.is_multilingual else ".en")
             )
+        logging.info("Tokenizer loaded (95%)")
         self.feat_kwargs = self._get_feature_kwargs(model_path, preprocessor_bytes)
+        logging.info("Initializing feature extractor (95%)")
         self.feature_extractor = FeatureExtractor(**self.feat_kwargs)
+        logging.info("Whisper model fully initialized (100%)")
         self.input_stride = 2
         self.num_samples_per_token = (
             self.feature_extractor.hop_length * self.input_stride
@@ -667,6 +676,8 @@ class WhisperModel:
         )
         self.time_precision = 0.02
         self.max_length = 448
+        logging.info("Allocating tensors (75%)")
+        logging.info("Model ready (100%)")
 
     @property
     def supported_languages(self) -> List[str]:

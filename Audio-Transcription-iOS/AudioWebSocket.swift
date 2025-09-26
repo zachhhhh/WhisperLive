@@ -23,6 +23,7 @@ class AudioWebSocket: NSObject, URLSessionWebSocketDelegate {
     var onServerReady: (() -> Void)?
     var onTranscriptionReceived: ((String) -> Void)?
     var onStatusMessage: ((String, String?) -> Void)?
+    var onConnectionError: ((String) -> Void)?
 
     var enableTranslation: Bool = false
     var targetLanguage: String = "en"
@@ -48,6 +49,7 @@ class AudioWebSocket: NSObject, URLSessionWebSocketDelegate {
     private func connect() {
         guard retryCount <= maxRetries else {
             print("Maximum reconnect attempts exceeded.")
+            onConnectionError?("Maximum reconnect attempts exceeded.")
             return
         }
 
@@ -87,7 +89,7 @@ class AudioWebSocket: NSObject, URLSessionWebSocketDelegate {
             "uid": uid,
             "language": "en",
             "task": "transcribe",
-            "model": modelSize,
+            "model": "tiny",
             "use_vad": true,
             "enable_translation": enableTranslation,
             "target_language": targetLanguage,
@@ -158,6 +160,7 @@ class AudioWebSocket: NSObject, URLSessionWebSocketDelegate {
                 self?.listen()
             case .failure(let error):
                 print("Receive error: \(error.localizedDescription)")
+                self?.onConnectionError?("Receive error: \(error.localizedDescription)")
                 self?.reconnect()
             }
         }
@@ -298,6 +301,9 @@ class AudioWebSocket: NSObject, URLSessionWebSocketDelegate {
                     reason: Data?) {
         let reasonString = String(data: reason ?? Data(), encoding: .utf8) ?? "No reason"
         print("WebSocket closed - code: \(closeCode.rawValue), reason: \(reasonString)")
+        if closeCode != .normalClosure {
+            onConnectionError?("WebSocket closed unexpectedly: code \(closeCode.rawValue), reason: \(reasonString)")
+        }
         stopPing()
         reconnect()
     }

@@ -18,9 +18,9 @@ DEFAULT_SEAMLESS_MODEL_ID = "seamless_m4t_v2_large_onnx"
 
 class ServeClientTranslation(ServeClientBase):
     """
-    Handles translation of completed transcription segments in a separate thread.
-    Reads from a queue populated by the transcription backend and sends translated
-    segments back to the client via WebSocket.
+    Handles translation of transcription segments (completed and in-progress) in a
+    separate thread. Reads from a queue populated by the transcription backend and
+    streams translated segments back to the client via WebSocket.
     """
     
     def __init__(
@@ -61,6 +61,7 @@ class ServeClientTranslation(ServeClientBase):
         self.translation_available = False
         self._sent_status_message = False
         self._uses_onnx = False
+        self._last_segment_state: Dict[tuple, Dict[str, Any]] = {}
 
         if auto_load_model:
             self.load_translation_model()
@@ -189,27 +190,54 @@ class ServeClientTranslation(ServeClientBase):
                     logging.info(f"Received exit signal for translation client {self.client_uid}")
                     break
                     
-                # Only translate completed segments
-                if not segment.get("completed", False):
+                # Translate the segment (completed or in-progress)
+                original_text = segment.get("text", "")
+                if not original_text.strip():
                     self.translation_queue.task_done()
                     continue
-                    
-                # Translate the segment
-                original_text = segment.get("text", "")
+
+                start = segment.get("start", 0.0)
+                end = segment.get("end", 0.0)
+                completed = segment.get("completed", False)
+                segment_key = (start, end)
+
+                last_state = self._last_segment_state.get(segment_key)
+                if last_state and last_state.get("text") == original_text and last_state.get("completed") == completed:
+                    self.translation_queue.task_done()
+                    continue
                 translated_text = self.translate_text(original_text)
                 
                 # Create translated segment
                 translated_segment = {
-                    "start": segment["start"],
-                    "end": segment["end"],
+                    "start": start,
+                    "end": end,
                     "text": translated_text,
-                    "completed": segment.get("completed", False),
+                    "completed": completed,
                     "target_language": self.target_language
                 }
                 
-                self.translated_segments.append(translated_segment)
-                segments_to_send = self.prepare_translated_segments()
-                self.send_translation_to_client(segments_to_send)
+                updated = False
+                for index, existing in enumerate(self.translated_segments):
+                    if existing.get("start") == start and existing.get("end") == end:
+                        if existing.get("text") == translated_text and existing.get("completed") == completed:
+                            updated = False
+                        else:
+                            self.translated_segments[index] = translated_segment
+                            updated = True
+                        break
+                else:
+                    self.translated_segments.append(translated_segment)
+                    updated = True
+
+                if updated:
+                    self.translated_segments.sort(key=lambda seg: seg.get("start", 0.0))
+                    segments_to_send = self.prepare_translated_segments()
+                    self.send_translation_to_client(segments_to_send)
+
+                self._last_segment_state[segment_key] = {
+                    "text": original_text,
+                    "completed": completed,
+                }
                 
                 self.translation_queue.task_done()
                 
@@ -286,3 +314,4 @@ class ServeClientTranslation(ServeClientBase):
         if self.processor:
             del self.processor
             self.processor = None
+        self._last_segment_state.clear()

@@ -27,13 +27,20 @@ class AudioViewModel: ObservableObject {
     @Published var transcriptionList: [String] = []  // Live transcription output
     @Published var isLoading = false              // True while waiting for server response
     @Published var finalScript: String = ""       // Final script from completed segments
-    @Published var enableTranslation: Bool = false
-    @Published var targetLanguage: String = "en"
+    @Published var enableTranslation: Bool = true
+    @Published var targetLanguage: String = "es"  // Default to Spanish for translation testing
+    @Published var translationSelection: String = "es" {
+        didSet {
+            targetLanguage = translationSelection
+        }
+    }
     @Published var translatedList: [String] = []     // Live translated transcription output
     @Published var finalTranslatedScript: String = "" // Final translated script
     @Published var statusBanner: String? = nil        // Latest status/warning message from server
+    @Published var isLanguageSheetVisible: Bool = false
 
     private var timer: Timer?
+    private var connectionTimeoutTimer: Timer?
     private var elapsedTime: Int = 0
 
     private var audioStreamer: AudioStreamer?     // Handles audio capture and streaming
@@ -44,13 +51,42 @@ class AudioViewModel: ObservableObject {
 
     init() {}
 
+    var availableLanguages: [LanguageOption] {
+        LanguageCatalog.all.sorted { $0.name < $1.name }
+    }
+
+    var selectedLanguageName: String {
+        LanguageCatalog.name(for: targetLanguage)
+    }
+
+    var transcriptionText: String {
+        transcriptionList.joined(separator: " ").trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    var translationText: String {
+        translatedList.joined(separator: " ").trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     /// Starts audio recording and initializes WebSocket + AVAudioEngine.
     func startRecording() {
         let portInt = Int(port) ?? 9090
-        audioWebSocket = AudioWebSocket(host: host, port: portInt, enableTranslation: enableTranslation, targetLanguage: targetLanguage)
+        audioWebSocket = AudioWebSocket(
+            host: host,
+            port: portInt,
+            enableTranslation: enableTranslation,
+            targetLanguage: targetLanguage
+        )
         audioStreamer = AudioStreamer(webSocket: audioWebSocket!)
 
+        transcriptionList.removeAll()
+        translatedList.removeAll()
+        segments.removeAll()
+        translatedSegments.removeAll()
+        finalScript = ""
+        finalTranslatedScript = ""
+
         isLoading = true
+        loadingProgress = 0.0
         statusBanner = nil
         audioWebSocket?.onStatusMessage = { [weak self] status, message in
             guard let self = self else { return }
@@ -70,6 +106,33 @@ class AudioViewModel: ObservableObject {
             }
         }
 
+        audioWebSocket?.onConnectionError = { [weak self] errorMsg in
+            DispatchQueue.main.async {
+                self?.statusBanner = errorMsg
+                self?.isLoading = false
+                self?.loadingTimer?.invalidate()
+                self?.loadingTimer = nil
+                self?.connectionTimeoutTimer?.invalidate()
+                self?.connectionTimeoutTimer = nil
+            }
+        }
+
+        // Start loading progress timer
+        loadingTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
+            self.loadingProgress = min(1.0, self.loadingProgress + 0.02)  // Simulate 5-second load
+        }
+
+        connectionTimeoutTimer = Timer.scheduledTimer(withTimeInterval: 10.0, repeats: false) { _ in
+            DispatchQueue.main.async {
+                if !self.isRecording {
+                    self.statusBanner = "Connection timeout. Please check if the server is running and try again."
+                    self.isLoading = false
+                    self.loadingTimer?.invalidate()
+                    self.loadingTimer = nil
+                }
+            }
+        }
+
         // Handle server transcription message
         audioWebSocket?.onTranscriptionReceived = { [weak self] text in
             self?.handleRawTranscriptionJSON(text)
@@ -79,6 +142,11 @@ class AudioViewModel: ObservableObject {
         audioWebSocket?.onServerReady = { [weak self] in
             guard let self = self else { return }
             DispatchQueue.main.async {
+                self.loadingTimer?.invalidate()
+                self.loadingTimer = nil
+                self.loadingProgress = 1.0
+                self.connectionTimeoutTimer?.invalidate()
+                self.connectionTimeoutTimer = nil
                 self.isLoading = false
                 self.isRecording = true
                 self.isPaused = false
@@ -110,6 +178,12 @@ class AudioViewModel: ObservableObject {
         isRecording = false
         isPaused = false
         timer?.invalidate()
+        loadingTimer?.invalidate()
+        loadingTimer = nil
+        noTranscriptionTimer?.invalidate()
+        noTranscriptionTimer = nil
+        connectionTimeoutTimer?.invalidate()
+        connectionTimeoutTimer = nil
 
         audioStreamer?.stopStreaming()
         audioWebSocket?.sendEndOfAudio()
@@ -118,12 +192,29 @@ class AudioViewModel: ObservableObject {
     }
 
     /// Starts the recording timer (1-second interval).
+    private var noTranscriptionTimer: Timer?
+
     private func startTimer() {
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
             self.elapsedTime += 1
             let minutes = self.elapsedTime / 60
             let seconds = self.elapsedTime % 60
             self.timeLabel = String(format: "%02d:%02d", minutes, seconds)
+
+            // Alert if no transcription after 10 seconds
+            if self.elapsedTime >= 10 && self.transcriptionList.isEmpty && self.isRecording {
+                self.statusBanner = "No speech detected. Check microphone or try speaking louder."
+                self.noTranscriptionTimer?.invalidate()
+            }
+        }
+
+        // Start no-transcription alert timer
+        noTranscriptionTimer = Timer.scheduledTimer(withTimeInterval: 10.0, repeats: false) { _ in
+            if self.transcriptionList.isEmpty && self.isRecording {
+                DispatchQueue.main.async {
+                    self.statusBanner = "No speech detected. Check microphone or try speaking louder."
+                }
+            }
         }
     }
 
@@ -132,16 +223,16 @@ class AudioViewModel: ObservableObject {
         isLoading = false
         let completedText = segments
             .filter { $0.completed }
-            .map { $0.text.trimmingCharacters(in: .whitespaces) }
+            .map { String($0.text).trimmingCharacters(in: .whitespaces) }
             .joined(separator: " ")
         finalScript = completedText
 
-        if enableTranslation {
-            let completedTranslatedText = translatedSegments
-                .filter { $0.completed }
-                .map { $0.text.trimmingCharacters(in: .whitespaces) }
-                .joined(separator: " ")
-            finalTranslatedScript = completedTranslatedText
+        let completedTranslatedText = translatedSegments
+            .filter { $0.completed }
+            .map { String($0.text).trimmingCharacters(in: .whitespaces) }
+            .joined(separator: " ")
+        finalTranslatedScript = completedTranslatedText
+        if !finalTranslatedScript.isEmpty {
             print("Final translated transcript:\n\(finalTranslatedScript)")
         }
 
@@ -182,12 +273,10 @@ class AudioViewModel: ObservableObject {
         var targetSegments: [TranscriptionSegment] = isTranslated ? translatedSegments : segments
 
         for item in segmentDicts {
-            guard let startStr = item["start"] as? String,
-                  let endStr = item["end"] as? String,
-                  let text = item["text"] as? String,
-                  let completed = item["completed"] as? Bool,
-                  let start = Double(startStr),
-                  let end = Double(endStr) else { continue }
+            let start = item["start"] as? Double ?? 0.0
+            let end = item["end"] as? Double ?? 0.0
+            let text = (item["text"] as? String) ?? String(describing: item["text"] ?? "")
+            let completed = item["completed"] as? Bool ?? false
 
             let newSegment = TranscriptionSegment(start: start, end: end, text: text, completed: completed)
 
@@ -206,12 +295,12 @@ class AudioViewModel: ObservableObject {
                 let completedTranslatedTexts = self.translatedSegments
                     .filter { $0.completed }
                     .sorted(by: { $0.start < $1.start })
-                    .map { $0.text.trimmingCharacters(in: .whitespaces) }
+                    .map { String($0.text).trimmingCharacters(in: .whitespaces) }
 
                 let pendingTranslatedText = self.translatedSegments
                     .filter { !$0.completed }
                     .sorted(by: { $0.start < $1.start })
-                    .map { $0.text.trimmingCharacters(in: .whitespaces) }
+                    .map { String($0.text).trimmingCharacters(in: .whitespaces) }
                     .last ?? ""
 
                 self.translatedList = completedTranslatedTexts + (pendingTranslatedText.isEmpty ? [] : [pendingTranslatedText])
@@ -221,12 +310,12 @@ class AudioViewModel: ObservableObject {
                 let completedTexts = self.segments
                     .filter { $0.completed }
                     .sorted(by: { $0.start < $1.start })
-                    .map { $0.text.trimmingCharacters(in: .whitespaces) }
+                    .map { String($0.text).trimmingCharacters(in: .whitespaces) }
 
                 let pendingText = self.segments
                     .filter { !$0.completed }
                     .sorted(by: { $0.start < $1.start })
-                    .map { $0.text.trimmingCharacters(in: .whitespaces) }
+                    .map { String($0.text).trimmingCharacters(in: .whitespaces) }
                     .last ?? ""
 
                 self.transcriptionList = completedTexts + (pendingText.isEmpty ? [] : [pendingText])

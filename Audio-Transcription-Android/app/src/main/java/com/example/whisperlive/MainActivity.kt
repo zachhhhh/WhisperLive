@@ -1,68 +1,65 @@
 package com.example.whisperlive
 
 import android.Manifest
+import android.util.Log
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.view.View
-import android.widget.*
+import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.Spinner
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.*
+import kotlinx.coroutines.withContext
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
 import org.json.JSONObject
 import java.net.URI
 import java.nio.ByteBuffer
-
-import android.annotation.SuppressLint
-import android.content.Context
-import android.content.SharedPreferences
+import java.nio.ByteOrder
+import java.util.UUID
+import kotlin.math.max
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var billingManager: BillingManager
-    private lateinit var btnPause: Button
-    private lateinit var btnClear: Button
-    private lateinit var spinnerModel: Spinner
 
-    private lateinit var sharedPreferences: SharedPreferences
-
-    private lateinit var etHost: EditText
-    private lateinit var etPort: EditText
-    private lateinit var switchTranslation: Switch
-    private lateinit var spinnerLanguage: Spinner
     private lateinit var btnRecord: Button
-    private lateinit var tvTranscription: TextView
-    private lateinit var tvTranslation: TextView
-    private lateinit var translationLayout: LinearLayout
-    private lateinit var premiumBtn: Button
+    private lateinit var spinnerLanguage: Spinner
+    private lateinit var tvOutput: TextView
+    private lateinit var sharedPreferences: SharedPreferences
 
     private var webSocketClient: WebSocketClient? = null
     private var isWebSocketOpen = false
     private var audioRecord: AudioRecord? = null
     private var isRecording = false
-    private var isPaused = false
     private var recordingJob: Job? = null
+    private var translationEnabled = false
+    private var lastSourceText: String = ""
+    private var lastTranslatedText: String = ""
 
-    private val handler = Handler(Looper.getMainLooper())
-    private val languages = arrayOf("en", "fr", "es", "hi", "ja", "de", "it", "pt", "zh", "ar", "ru", "ko")
-    private val languageNames = arrayOf("English", "French", "Spanish", "Hindi", "Japanese", "German", "Italian", "Portuguese", "Chinese", "Arabic", "Russian", "Korean")
+    private lateinit var languageCodes: Array<String>
+    private lateinit var languageNames: Array<String>
+
     private val models = arrayOf("tiny", "base", "small", "medium", "large")
 
-    private val SAMPLE_RATE = 16000
-    private val CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO
-    private val AUDIO_FORMAT = AudioFormat.ENCODING_PCM_FLOAT
-    private val BUFFER_SIZE = AudioRecord.getMinBufferSize(SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT)
+    private val sampleRate = 16000
+    private val channelConfig = AudioFormat.CHANNEL_IN_MONO
+    private val audioFormat = AudioFormat.ENCODING_PCM_16BIT
+    private val bufferSize = max(AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat), sampleRate)
 
-    private val PERMISSION_REQUEST_CODE = 100
+    private val permissionRequestCode = 100
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,51 +67,22 @@ class MainActivity : AppCompatActivity() {
 
         sharedPreferences = getSharedPreferences("app_settings", Context.MODE_PRIVATE)
 
-        // Monetization setup
-        billingManager = BillingManager(this)
+        languageCodes = resources.getStringArray(R.array.translation_language_codes)
+        languageNames = resources.getStringArray(R.array.translation_language_names)
 
-        etHost = findViewById(R.id.etHost)
-        etPort = findViewById(R.id.etPort)
-        switchTranslation = findViewById(R.id.switchTranslation)
-        spinnerLanguage = findViewById(R.id.spinnerLanguage)
         btnRecord = findViewById(R.id.btnRecord)
-        tvTranscription = findViewById(R.id.tvTranscription)
-        tvTranslation = findViewById(R.id.tvTranslation)
-        translationLayout = findViewById(R.id.translationLayout)
-        premiumBtn = findViewById(R.id.premiumBtn)
-        btnPause = findViewById(R.id.btnPause)
-        btnClear = findViewById(R.id.btnClear)
-        spinnerModel = findViewById(R.id.spinnerModel)
-        premiumBtn.isEnabled = false
-        premiumBtn.text = getString(R.string.premium_button_loading)
-        premiumBtn.setOnClickListener {
-            billingManager.launchBillingFlow(this, billingManager.productDetails.value.firstOrNull() ?: return@setOnClickListener)
-        }
-
-        // Load saved settings
-        etHost.setText(sharedPreferences.getString("host", "localhost"))
-        etPort.setText(sharedPreferences.getString("port", "9090"))
-        val savedModelIndex = sharedPreferences.getInt("model_index", 2)
-        spinnerModel.setSelection(savedModelIndex)
-        val savedTranslation = sharedPreferences.getBoolean("translation_enabled", false)
-        switchTranslation.isChecked = savedTranslation
-        if (savedTranslation) {
-            spinnerLanguage.visibility = View.VISIBLE
-            translationLayout.visibility = View.VISIBLE
-        }
-        val savedLanguageIndex = sharedPreferences.getInt("language_index", 0)
-        spinnerLanguage.setSelection(savedLanguageIndex)
+        spinnerLanguage = findViewById(R.id.spinnerLanguage)
+        tvOutput = findViewById(R.id.tvTranscription)
 
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, languageNames)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerLanguage.adapter = adapter
-        spinnerLanguage.setSelection(0) // Default English
-        spinnerModel.setSelection(2) // Default "small"
 
-        switchTranslation.setOnCheckedChangeListener { _, isChecked ->
-            spinnerLanguage.visibility = if (isChecked) View.VISIBLE else View.GONE
-            translationLayout.visibility = if (isChecked) View.VISIBLE else View.GONE
-        }
+        val savedLanguageIndex = sharedPreferences.getInt("language_index", 0)
+            .coerceIn(0, languageCodes.size - 1)
+        spinnerLanguage.setSelection(savedLanguageIndex)
+
+        tvOutput.text = getString(R.string.output_placeholder)
 
         btnRecord.setOnClickListener {
             if (isRecording) {
@@ -127,112 +95,74 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-
-        btnPause.setOnClickListener {
-            if (isRecording) {
-                if (isPaused) {
-                    resumeRecording()
-                } else {
-                    pauseRecording()
-                }
-            }
-        }
-
-        btnClear.setOnClickListener {
-            tvTranscription.text = "Transcription will appear here..."
-            tvTranslation.text = "Translation will appear here..."
-        }
-
-        // Premium check
-        lifecycleScope.launch {
-            billingManager.purchaseState.collectLatest { state ->
-                if (state == PurchaseState.Purchased) {
-                    premiumBtn.visibility = View.GONE
-                } else {
-                    premiumBtn.visibility = View.VISIBLE
-                }
-            }
-        }
-
-        lifecycleScope.launch {
-            billingManager.productDetails.collectLatest { details ->
-                val premiumDetails = details.firstOrNull()
-                if (premiumDetails != null) {
-                    val price = premiumDetails.oneTimePurchaseOfferDetails?.formattedPrice
-                    premiumBtn.isEnabled = true
-                    premiumBtn.text = price?.let {
-                        getString(R.string.premium_button_with_price, it)
-                    } ?: getString(R.string.premium_button_default)
-                } else {
-                    premiumBtn.isEnabled = false
-                    premiumBtn.text = getString(R.string.premium_button_loading)
-                }
-            }
-        }
-
-        // Default visibility
-        translationLayout.visibility = View.GONE
-        spinnerLanguage.visibility = View.GONE
     }
-
 
     private fun checkPermissions(): Boolean {
         return ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
     }
 
     private fun requestPermissions() {
-        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), PERMISSION_REQUEST_CODE)
+        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), permissionRequestCode)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == PERMISSION_REQUEST_CODE) {
+        if (requestCode == permissionRequestCode) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 startRecording()
             } else {
-                Toast.makeText(this, "Microphone permission is required", Toast.LENGTH_SHORT).show()
+                showToast(getString(R.string.toast_permission_required))
             }
         }
     }
 
     @SuppressLint("MissingPermission")
     private fun startRecording() {
-        val host = etHost.text.toString().trim()
-        val portStr = etPort.text.toString().trim()
+        Log.i("MainActivity", "Starting recording")
 
-        // Save settings
-        with(sharedPreferences.edit()) {
-            putString("host", host)
-            putString("port", portStr)
-            putInt("model_index", spinnerModel.selectedItemPosition)
-            putBoolean("translation_enabled", switchTranslation.isChecked)
-            putInt("language_index", spinnerLanguage.selectedItemPosition)
-            apply()
-        }
-        if (host.isEmpty() || portStr.isEmpty()) {
-            Toast.makeText(this, "Please enter host and port", Toast.LENGTH_SHORT).show()
+        val host = sharedPreferences.getString("host", getString(R.string.default_server_host)).orEmpty()
+        val portValue = sharedPreferences.getString("port", getString(R.string.default_server_port)).orEmpty()
+
+        Log.d("MainActivity", "Connecting to server: $host:$portValue")
+
+        if (host.isBlank() || portValue.isBlank()) {
+            Log.e("MainActivity", "Missing server host or port")
+            showToast(getString(R.string.toast_missing_server))
             return
         }
 
-        val port = portStr.toIntOrNull() ?: 9090
-        val enableTranslation = switchTranslation.isChecked
-        val targetLanguage = languages[spinnerLanguage.selectedItemPosition]
-        val model = models[spinnerModel.selectedItemPosition]
+        val port = portValue.toIntOrNull()
+        if (port == null) {
+            Log.e("MainActivity", "Invalid port: $portValue")
+            showToast(getString(R.string.toast_invalid_port))
+            return
+        }
 
-        tvTranscription.text = "Connecting..."
-        tvTranslation.text = "Translation will appear here..."
+        translationEnabled = true
+        lastSourceText = ""
+        lastTranslatedText = ""
 
-        // Generate UID
-        val uid = java.util.UUID.randomUUID().toString()
+        sharedPreferences.edit()
+            .putInt("language_index", spinnerLanguage.selectedItemPosition)
+            .apply()
 
-        // Initial JSON
+        val targetLanguage = languageCodes[spinnerLanguage.selectedItemPosition]
+        val modelIndex = sharedPreferences.getInt("model_index", 2)
+            .coerceIn(0, models.size - 1)
+        val model = models[modelIndex]
+
+        tvOutput.text = getString(R.string.status_connecting)
+        btnRecord.text = getString(R.string.start_button_stop)
+
+        val uid = UUID.randomUUID().toString()
+
         val json = JSONObject().apply {
             put("uid", uid)
             put("language", "en")
             put("task", "transcribe")
             put("model", model)
             put("use_vad", true)
-            put("enable_translation", enableTranslation)
+            put("enable_translation", true)
             put("target_language", targetLanguage)
             put("send_last_n_segments", 10)
         }
@@ -240,145 +170,164 @@ class MainActivity : AppCompatActivity() {
         val uri = URI("ws://$host:$port")
         webSocketClient = object : WebSocketClient(uri) {
             override fun onOpen(handshake: ServerHandshake) {
+                Log.i("MainActivity", "WebSocket connected: $handshake")
                 isWebSocketOpen = true
                 runOnUiThread {
-                    Toast.makeText(this@MainActivity, "Connected", Toast.LENGTH_SHORT).show()
-                    tvTranscription.text = "Listening..."
+                    tvOutput.text = getString(R.string.status_listening)
                 }
                 send(json.toString())
             }
 
             override fun onMessage(message: String) {
+                Log.d("MainActivity", "Received message: $message")
                 runOnUiThread {
                     handleMessage(message)
                 }
             }
 
-            override fun onMessage(bytes: ByteBuffer?) {
-                // Binary audio response not expected
+            override fun onMessage(bytes: java.nio.ByteBuffer?) {
+                // No binary messages expected
             }
 
             override fun onClose(code: Int, reason: String?, remote: Boolean) {
+                Log.w("MainActivity", "WebSocket closed: code=$code, reason=$reason, remote=$remote")
                 isWebSocketOpen = false
                 runOnUiThread {
-                    Toast.makeText(this@MainActivity, "Disconnected: $reason", Toast.LENGTH_SHORT).show()
-                    tvTranscription.text = "Disconnected"
+                    if (isRecording || audioRecord != null) {
+                        stopRecording(fromServer = true)
+                    }
+                    if (!reason.isNullOrBlank()) {
+                        showToast(getString(R.string.status_error, reason))
+                    } else if (tvOutput.text.isNullOrBlank()) {
+                        tvOutput.text = getString(R.string.status_disconnected)
+                    }
                 }
             }
 
             override fun onError(ex: Exception) {
+                Log.e("MainActivity", "WebSocket error", ex)
                 isWebSocketOpen = false
                 runOnUiThread {
-                    Toast.makeText(this@MainActivity, "Error: ${ex.message}", Toast.LENGTH_SHORT).show()
+                    showToast(getString(R.string.status_error, ex.message ?: "Unknown error"))
+                    stopRecording(fromServer = true)
                 }
             }
         }
 
         webSocketClient?.connect()
 
-        // Start audio recording
         audioRecord = AudioRecord(
             MediaRecorder.AudioSource.MIC,
-            SAMPLE_RATE,
-            CHANNEL_CONFIG,
-            AUDIO_FORMAT,
-            BUFFER_SIZE
+            sampleRate,
+            channelConfig,
+            audioFormat,
+            bufferSize
         )
 
         if (audioRecord?.state != AudioRecord.STATE_INITIALIZED) {
-            Toast.makeText(this, "Failed to initialize AudioRecord", Toast.LENGTH_SHORT).show()
+            Log.e("MainActivity", "Failed to initialize AudioRecord")
+            showToast(getString(R.string.status_error, "Audio input not available"))
+            audioRecord?.release()
+            audioRecord = null
+            translationEnabled = false
+            isRecording = false
+            isWebSocketOpen = false
+            try {
+                webSocketClient?.close()
+            } catch (_: Exception) {
+                // Ignore socket errors during shutdown
+            }
+            webSocketClient = null
+            btnRecord.text = getString(R.string.start_button_start)
+            return
+        }
+
+        try {
+            audioRecord?.startRecording()
+            Log.i("MainActivity", "Audio recording started")
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Failed to start audio recording", e)
+            showToast(getString(R.string.status_error, "Failed to start recording"))
             audioRecord?.release()
             audioRecord = null
             return
         }
-
-        audioRecord?.startRecording()
         isRecording = true
-        btnRecord.text = "Stop Recording"
-        btnRecord.setBackgroundColor(ContextCompat.getColor(this, android.R.color.holo_red_light))
-        btnPause.visibility = View.VISIBLE
-        btnPause.text = "Pause"
 
         recordingJob = lifecycleScope.launch(Dispatchers.IO) {
-            val buffer = FloatArray(BUFFER_SIZE)
+            val buffer = ShortArray(bufferSize / 2)
             while (isRecording) {
-                if (!isPaused) {
-                    if (!isWebSocketOpen) {
-                        delay(50)
-                        continue
-                    }
-                    val read = audioRecord?.read(buffer, 0, BUFFER_SIZE, AudioRecord.READ_BLOCKING) ?: 0
-                    if (read > 0) {
-                        val bytes = ByteArray(read * 4) // Float32
-                        for (index in 0 until read) {
-                            val value = buffer[index]
-                            val bytesOffset = index * 4
-                            val intBits = java.lang.Float.floatToIntBits(value)
-                            bytes[bytesOffset] = (intBits and 0xff).toByte()
-                            bytes[bytesOffset + 1] = ((intBits shr 8) and 0xff).toByte()
-                            bytes[bytesOffset + 2] = ((intBits shr 16) and 0xff).toByte()
-                            bytes[bytesOffset + 3] = ((intBits shr 24) and 0xff).toByte()
-                        }
+                val read = audioRecord?.read(buffer, 0, buffer.size, AudioRecord.READ_BLOCKING) ?: 0
+                if (read > 0) {
+                    Log.d("MainActivity", "Read $read audio samples")
+                    if (isWebSocketOpen) {
+                        val bytes = ByteArray(read * 2)
+                        ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().put(buffer, 0, read)
                         try {
                             webSocketClient?.send(bytes)
+                            Log.d("MainActivity", "Sent $read audio bytes")
                         } catch (e: Exception) {
-                            // Exit the loop gracefully if the socket is no longer available
+                            Log.e("MainActivity", "Failed to send audio data", e)
                             val shouldNotify = isWebSocketOpen
                             isRecording = false
                             withContext(Dispatchers.Main) {
-                                stopRecording()
+                                stopRecording(fromServer = true)
                                 if (shouldNotify) {
-                                    Toast.makeText(this@MainActivity, "Connection lost", Toast.LENGTH_SHORT).show()
+                                    showToast(getString(R.string.status_error, e.message ?: "Connection lost"))
                                 }
                             }
                         }
+                    } else {
+                        Log.w("MainActivity", "WebSocket not open, skipping send")
                     }
+                } else if (read < 0) {
+                    Log.e("MainActivity", "Audio read error: $read")
                 } else {
-                    delay(100)
+                    delay(10)
                 }
             }
         }
     }
 
-    private fun stopRecording() {
-        if (!isRecording && audioRecord == null) {
-            return
-        }
+    private fun stopRecording(fromServer: Boolean = false) {
+        Log.i("MainActivity", "Stopping recording, fromServer=$fromServer")
+        translationEnabled = false
         isRecording = false
         isWebSocketOpen = false
-        isPaused = false
+        lastSourceText = ""
+        lastTranslatedText = ""
+
         recordingJob?.cancel()
+        recordingJob = null
+
         try {
             audioRecord?.stop()
-        } catch (_: IllegalStateException) {
-            // AudioRecord was not recording; nothing to stop.
+            Log.d("MainActivity", "Audio recording stopped")
+        } catch (e: IllegalStateException) {
+            Log.w("MainActivity", "AudioRecord stop ignored: not recording", e)
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Error stopping audio recording", e)
         }
         audioRecord?.release()
         audioRecord = null
-        try {
-            if (webSocketClient?.isOpen == true) {
+
+        if (!fromServer) {
+            try {
                 webSocketClient?.send("END_OF_AUDIO")
+                Log.d("MainActivity", "Sent END_OF_AUDIO")
+            } catch (e: Exception) {
+                Log.w("MainActivity", "Failed to send END_OF_AUDIO", e)
             }
-        } catch (_: Exception) {
-            // Socket already closed
+            try {
+                webSocketClient?.close()
+                Log.d("MainActivity", "WebSocket closed by client")
+            } catch (e: Exception) {
+                Log.w("MainActivity", "Error closing WebSocket", e)
+            }
         }
-        webSocketClient?.close()
+
         webSocketClient = null
-        btnRecord.text = "Start Recording"
-        btnRecord.setBackgroundColor(ContextCompat.getColor(this, android.R.color.holo_green_light))
-        btnPause.visibility = View.GONE
-        tvTranscription.append("\n--- End of Recording ---")
-        recordingJob = null
-    }
-
-    private fun pauseRecording() {
-        isPaused = true
-        btnPause.text = "Resume"
-    }
-
-    private fun resumeRecording() {
-        isPaused = false
-        btnPause.text = "Pause"
+        btnRecord.text = getString(R.string.start_button_start)
     }
 
     private fun handleMessage(message: String) {
@@ -388,56 +337,94 @@ class MainActivity : AppCompatActivity() {
                 json.has("status") -> {
                     val status = json.getString("status")
                     val msg = json.optString("message", "")
+                    Log.d("MainActivity", "Status message: $status, msg: $msg")
                     when (status) {
-                        "SERVER_READY" -> {
-                            tvTranscription.text = "Ready - Start speaking..."
+                        "SERVER_READY" -> tvOutput.text = getString(R.string.status_ready)
+                        "WAIT" -> {
+                            if (msg.isNotBlank()) {
+                                showToast(getString(R.string.toast_server_busy_with_message, msg))
+                            } else {
+                                showToast(getString(R.string.toast_server_busy))
+                            }
                         }
-                        "WAIT" -> Toast.makeText(this, "Server full, wait $msg min", Toast.LENGTH_SHORT).show()
-                        "ERROR" -> Toast.makeText(this, "Error: $msg", Toast.LENGTH_SHORT).show()
-                        "WARNING" -> Toast.makeText(this, "Warning: $msg", Toast.LENGTH_SHORT).show()
+                        "ERROR" -> {
+                            Log.e("MainActivity", "Server error: $msg")
+                            showToast(getString(R.string.status_error, msg))
+                        }
+                        "WARNING" -> {
+                            Log.w("MainActivity", "Server warning: $msg")
+                            if (msg.isNotBlank()) showToast(msg)
+                        }
+                    }
+                }
+                json.has("translated_segments") -> {
+                    val segments = json.getJSONArray("translated_segments")
+                    val pieces = mutableListOf<String>()
+                    for (i in 0 until segments.length()) {
+                        val segText = segments.getJSONObject(i).optString("text").trim()
+                        if (segText.isNotEmpty()) {
+                            pieces.add(segText)
+                        }
+                    }
+                    val text = pieces.joinToString(separator = "\n\n")
+                    if (text.isNotEmpty()) {
+                        Log.d("MainActivity", "Translated text: $text")
+                        lastTranslatedText = text
+                        tvOutput.text = text
                     }
                 }
                 json.has("segments") -> {
                     val segments = json.getJSONArray("segments")
-                    var text = StringBuilder()
+                    val pieces = mutableListOf<String>()
                     for (i in 0 until segments.length()) {
-                        val seg = segments.getJSONObject(i)
-                        val segText = seg.getString("text")
-                        text.append(segText).append(" ")
+                        val segText = segments.getJSONObject(i).optString("text").trim()
+                        if (segText.isNotEmpty()) {
+                            pieces.add(segText)
+                        }
                     }
-                    tvTranscription.append("\n$text")
-                }
-                json.has("translated_segments") -> {
-                    val segments = json.getJSONArray("translated_segments")
-                    var text = StringBuilder()
-                    for (i in 0 until segments.length()) {
-                        val seg = segments.getJSONObject(i)
-                        val segText = seg.getString("text")
-                        text.append(segText).append(" ")
+                    val text = pieces.joinToString(separator = "\n\n")
+                    if (text.isNotEmpty() && !translationEnabled) {
+                        Log.d("MainActivity", "Transcription text: $text")
+                        tvOutput.text = text
+                    } else if (text.isNotEmpty()) {
+                        lastSourceText = text
+                        if (tvOutput.text.isNullOrBlank() || isStatusMessage(tvOutput.text.toString()) || tvOutput.text.toString() == lastSourceText || lastTranslatedText.isBlank()) {
+                            Log.d("MainActivity", "Source text: $text")
+                            tvOutput.text = text
+                        }
                     }
-                    tvTranslation.append("\n$text")
                 }
                 message == "DISCONNECT" -> {
-                    Toast.makeText(this, "Disconnected due to overtime", Toast.LENGTH_SHORT).show()
-                    stopRecording()
+                    Log.i("MainActivity", "Disconnect message received")
+                    showToast(getString(R.string.toast_disconnected))
+                    stopRecording(fromServer = true)
                 }
             }
         } catch (e: Exception) {
-            tvTranscription.append("\nError parsing: $message")
+            Log.e("MainActivity", "Error handling message: $message", e)
+            tvOutput.append("\n\n${getString(R.string.status_error, message)}")
         }
     }
 
+    private fun isStatusMessage(current: String): Boolean {
+        val statuses = setOf(
+            getString(R.string.output_placeholder),
+            getString(R.string.status_connecting),
+            getString(R.string.status_listening),
+            getString(R.string.status_ready),
+            getString(R.string.status_disconnected)
+        )
+        return current in statuses
+    }
+
+    private fun showToast(message: String) {
+        Log.d("MainActivity", "Showing toast: $message")
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
     override fun onDestroy() {
+        Log.i("MainActivity", "Activity destroying")
         super.onDestroy()
-        stopRecording()
-        billingManager.destroy()
-    }
-
-    override fun onPause() {
-        super.onPause()
-    }
-
-    override fun onResume() {
-        super.onResume()
+        stopRecording(fromServer = false)
     }
 }

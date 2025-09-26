@@ -73,7 +73,10 @@ class BillingManager(private val context: Context) : PurchasesUpdatedListener {
     }
 
     private fun queryPurchases() {
-        billingClient.queryPurchasesAsync(BillingClient.ProductType.INAPP) { billingResult, purchases ->
+        val params = QueryPurchasesParams.newBuilder()
+            .setProductType(BillingClient.ProductType.INAPP)
+            .build()
+        billingClient.queryPurchasesAsync(params) { billingResult, purchases ->
             if (billingResult.responseCode != BillingClient.BillingResponseCode.OK) {
                 _purchaseState.value = PurchaseState.Error
                 return@queryPurchasesAsync

@@ -295,8 +295,19 @@ class TranscriptionServer:
             A numpy array containing the audio.
         """
         frame_data = websocket.recv()
+
+        # Android/iOS clients send a text "END_OF_AUDIO" frame when the
+        # user stops streaming. websockets returns str for text frames, so
+        # normalising both bytes and str here prevents numpy from raising
+        # "a bytes-like object is required" when the signal arrives.
+        if isinstance(frame_data, str):
+            if frame_data == "END_OF_AUDIO":
+                return False
+            frame_data = frame_data.encode("utf-8")
+
         if frame_data == b"END_OF_AUDIO":
             return False
+
         return np.frombuffer(frame_data, dtype=np.float32)
 
     def handle_new_connection(

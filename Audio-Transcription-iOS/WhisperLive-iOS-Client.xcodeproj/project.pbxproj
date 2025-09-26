@@ -8,12 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		12E6484485ED733263BA84D8 /* IAPManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BA5F9655D7914BDE8A417B6 /* IAPManager.swift */; };
+		146A36AFD3F858B09526BD6B /* LanguageCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D7D6C1C06C1F0DF278B89CF /* LanguageCatalog.swift */; };
 		180468E53FC7F263A35D9788 /* WhisperLive_iOS_ClientApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98BFA8892B79CC9304451004 /* WhisperLive_iOS_ClientApp.swift */; };
 		211E678C5F71F61434A1C9B2 /* AudioWebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4AD83FB265F4390D3587631 /* AudioWebSocket.swift */; };
 		29E913529DB734C1C1984531 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = C722867AF8879E497CAB7E7E /* README.md */; };
 		2EE61946F4EADB223571FD69 /* Podfile.lock in Resources */ = {isa = PBXBuildFile; fileRef = 2AB20431E8B6A8BB5D8DFB2D /* Podfile.lock */; };
 		4D869C19E2F822AED52D4158 /* WhisperLive_iOS_ClientApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98BFA8892B79CC9304451004 /* WhisperLive_iOS_ClientApp.swift */; };
-		550C5EB1D3B3932D0662FE0F /* Pods_WhisperLive_iOS_Client.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B0433A527163A3FE9EE172EE /* Pods_WhisperLive_iOS_Client.framework */; };
 		55BAC2AB588653D6281A1FA9 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E1F7FFE780B4D3DEA430789 /* ContentView.swift */; };
 		6258778052CEAC96382076E5 /* RecordingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CACC5086D6079DDE3113B5 /* RecordingViewModel.swift */; };
 		6F80F4187CC318C2E595FA8F /* WhisperLive-iOS-Client-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = CA83617660FEDE936AA9DE2E /* WhisperLive-iOS-Client-Info.plist */; };
@@ -21,9 +21,9 @@
 		8C29A90A229A907CCB032D2D /* Podfile.lock in Resources */ = {isa = PBXBuildFile; fileRef = 2AB20431E8B6A8BB5D8DFB2D /* Podfile.lock */; };
 		91593AD00A33AE3CED205403 /* AudioStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF8CCEF7A649C565F7A9B2AD /* AudioStream.swift */; };
 		AB60290DE23CBF3801EE38D1 /* WhisperLive-iOS-Client.xcodeproj in Resources */ = {isa = PBXBuildFile; fileRef = B280C02CD2623A8224796272 /* WhisperLive-iOS-Client.xcodeproj */; };
-		B6A893DEC5C79129953F9FB7 /* Pods_WhisperLive_iOS_ClientTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 30E8A54F555CBF0855C7AD70 /* Pods_WhisperLive_iOS_ClientTests.framework */; };
 		C589DE69C795FFA4956F6242 /* project.yml in Resources */ = {isa = PBXBuildFile; fileRef = 3202B8C5678FBAC9B5241AA7 /* project.yml */; };
 		D2BC24C8565CB8AFB7F08A81 /* RecordingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34CACC5086D6079DDE3113B5 /* RecordingViewModel.swift */; };
+		D6DF38C771FFA5C0969C0516 /* LanguageCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D7D6C1C06C1F0DF278B89CF /* LanguageCatalog.swift */; };
 		D3FF624B8B9708BEE426ACAE /* IAPManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BA5F9655D7914BDE8A417B6 /* IAPManager.swift */; };
 		D7A69CDF03903798EFEFF48A /* AudioWebSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4AD83FB265F4390D3587631 /* AudioWebSocket.swift */; };
 		DFD134070851B054CC9940CE /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = C722867AF8879E497CAB7E7E /* README.md */; };
@@ -44,20 +44,15 @@
 
 /* Begin PBXFileReference section */
 		2AB20431E8B6A8BB5D8DFB2D /* Podfile.lock */ = {isa = PBXFileReference; lastKnownFileType = text; path = Podfile.lock; sourceTree = "<group>"; };
-		30E8A54F555CBF0855C7AD70 /* Pods_WhisperLive_iOS_ClientTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WhisperLive_iOS_ClientTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3202B8C5678FBAC9B5241AA7 /* project.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = project.yml; sourceTree = "<group>"; };
 		34CACC5086D6079DDE3113B5 /* RecordingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingViewModel.swift; sourceTree = "<group>"; };
-		3761C8E1708F0AD023F150C5 /* Pods-WhisperLive-iOS-ClientTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhisperLive-iOS-ClientTests.release.xcconfig"; path = "Target Support Files/Pods-WhisperLive-iOS-ClientTests/Pods-WhisperLive-iOS-ClientTests.release.xcconfig"; sourceTree = "<group>"; };
+		7D7D6C1C06C1F0DF278B89CF /* LanguageCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageCatalog.swift; sourceTree = "<group>"; };
 		3E1F7FFE780B4D3DEA430789 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		4CFADD483D9EBE2CDF2CF25C /* Pods-WhisperLive-iOS-Client.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhisperLive-iOS-Client.debug.xcconfig"; path = "Target Support Files/Pods-WhisperLive-iOS-Client/Pods-WhisperLive-iOS-Client.debug.xcconfig"; sourceTree = "<group>"; };
 		6B3C5230847C35AE9B0060C3 /* WhisperLive-iOS-Client.xcworkspace */ = {isa = PBXFileReference; lastKnownFileType = wrapper.workspace; path = "WhisperLive-iOS-Client.xcworkspace"; sourceTree = "<group>"; };
-		6FF448225B54F93D6189A13C /* Pods-WhisperLive-iOS-Client.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhisperLive-iOS-Client.release.xcconfig"; path = "Target Support Files/Pods-WhisperLive-iOS-Client/Pods-WhisperLive-iOS-Client.release.xcconfig"; sourceTree = "<group>"; };
-		71A45B0DE57486A57A53B26D /* Pods-WhisperLive-iOS-ClientTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WhisperLive-iOS-ClientTests.debug.xcconfig"; path = "Target Support Files/Pods-WhisperLive-iOS-ClientTests/Pods-WhisperLive-iOS-ClientTests.debug.xcconfig"; sourceTree = "<group>"; };
 		76873D1CE65540A8ED67F67A /* WhisperLive-iOS-Client.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "WhisperLive-iOS-Client.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		877675A6F0297FAADAA4EDF1 /* WhisperLive-iOS-Client.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "WhisperLive-iOS-Client.entitlements"; sourceTree = "<group>"; };
 		8BA5F9655D7914BDE8A417B6 /* IAPManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPManager.swift; sourceTree = "<group>"; };
 		98BFA8892B79CC9304451004 /* WhisperLive_iOS_ClientApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhisperLive_iOS_ClientApp.swift; sourceTree = "<group>"; };
-		B0433A527163A3FE9EE172EE /* Pods_WhisperLive_iOS_Client.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WhisperLive_iOS_Client.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B280C02CD2623A8224796272 /* WhisperLive-iOS-Client.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "WhisperLive-iOS-Client.xcodeproj"; sourceTree = "<group>"; };
 		B3F31E2488229004BAA86561 /* WhisperLive-iOS-ClientTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = "WhisperLive-iOS-ClientTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B4AD83FB265F4390D3587631 /* AudioWebSocket.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioWebSocket.swift; sourceTree = "<group>"; };
@@ -72,7 +67,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				550C5EB1D3B3932D0662FE0F /* Pods_WhisperLive_iOS_Client.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -80,7 +74,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B6A893DEC5C79129953F9FB7 /* Pods_WhisperLive_iOS_ClientTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -93,6 +86,7 @@
 				CF8CCEF7A649C565F7A9B2AD /* AudioStream.swift */,
 				B4AD83FB265F4390D3587631 /* AudioWebSocket.swift */,
 				3E1F7FFE780B4D3DEA430789 /* ContentView.swift */,
+				7D7D6C1C06C1F0DF278B89CF /* LanguageCatalog.swift */,
 				8BA5F9655D7914BDE8A417B6 /* IAPManager.swift */,
 				C6A771006A45F64687093EA0 /* Podfile */,
 				2AB20431E8B6A8BB5D8DFB2D /* Podfile.lock */,
@@ -112,8 +106,6 @@
 		137159938EA4E033C6A21C69 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				B0433A527163A3FE9EE172EE /* Pods_WhisperLive_iOS_Client.framework */,
-				30E8A54F555CBF0855C7AD70 /* Pods_WhisperLive_iOS_ClientTests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -132,7 +124,6 @@
 			children = (
 				0259C4682E8A6C274C757F7B /* Audio-Transcription-iOS */,
 				16A5FF6CD48943471EE956C6 /* Products */,
-				EDDCE66042775910BA939312 /* Pods */,
 				137159938EA4E033C6A21C69 /* Frameworks */,
 			);
 			sourceTree = "<group>";
@@ -144,18 +135,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		EDDCE66042775910BA939312 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				4CFADD483D9EBE2CDF2CF25C /* Pods-WhisperLive-iOS-Client.debug.xcconfig */,
-				6FF448225B54F93D6189A13C /* Pods-WhisperLive-iOS-Client.release.xcconfig */,
-				71A45B0DE57486A57A53B26D /* Pods-WhisperLive-iOS-ClientTests.debug.xcconfig */,
-				3761C8E1708F0AD023F150C5 /* Pods-WhisperLive-iOS-ClientTests.release.xcconfig */,
-			);
-			name = Pods;
-			path = Pods;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -163,7 +142,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9D7B03814CAA55D078C307D1 /* Build configuration list for PBXNativeTarget "WhisperLive-iOS-ClientTests" */;
 			buildPhases = (
-				D929AD8B0AC052C097B9ADB0 /* [CP] Check Pods Manifest.lock */,
 				560E4AE42051D722C4CC84F7 /* Sources */,
 				9046B2915AD35617DDE5E432 /* Resources */,
 				E3936AF5681AC20806C3112E /* Frameworks */,
@@ -182,7 +160,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = E4865F1F66F7D33AACB5A0F4 /* Build configuration list for PBXNativeTarget "WhisperLive-iOS-Client" */;
 			buildPhases = (
-				6275FE524A9356DB1982622E /* [CP] Check Pods Manifest.lock */,
 				F41BB36DBB37506973A7BA1F /* Sources */,
 				3895F841C12B857DC71CAC0E /* Resources */,
 				78EEF52DDD41305FD8231C5B /* Frameworks */,
@@ -236,7 +213,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8C29A90A229A907CCB032D2D /* Podfile.lock in Resources */,
 				29E913529DB734C1C1984531 /* README.md in Resources */,
 				793B651B050F627231A1868D /* project.yml in Resources */,
 			);
@@ -246,7 +222,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2EE61946F4EADB223571FD69 /* Podfile.lock in Resources */,
 				DFD134070851B054CC9940CE /* README.md in Resources */,
 				6F80F4187CC318C2E595FA8F /* WhisperLive-iOS-Client-Info.plist in Resources */,
 				AB60290DE23CBF3801EE38D1 /* WhisperLive-iOS-Client.xcodeproj in Resources */,
@@ -258,50 +233,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		6275FE524A9356DB1982622E /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-WhisperLive-iOS-Client-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		D929AD8B0AC052C097B9ADB0 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-WhisperLive-iOS-ClientTests-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -312,6 +243,7 @@
 				91593AD00A33AE3CED205403 /* AudioStream.swift in Sources */,
 				D7A69CDF03903798EFEFF48A /* AudioWebSocket.swift in Sources */,
 				F05C163D720F94FB34A486AE /* ContentView.swift in Sources */,
+				146A36AFD3F858B09526BD6B /* LanguageCatalog.swift in Sources */,
 				12E6484485ED733263BA84D8 /* IAPManager.swift in Sources */,
 				D2BC24C8565CB8AFB7F08A81 /* RecordingViewModel.swift in Sources */,
 				180468E53FC7F263A35D9788 /* WhisperLive_iOS_ClientApp.swift in Sources */,
@@ -325,6 +257,7 @@
 				EB8DC396035112CF0988022C /* AudioStream.swift in Sources */,
 				211E678C5F71F61434A1C9B2 /* AudioWebSocket.swift in Sources */,
 				55BAC2AB588653D6281A1FA9 /* ContentView.swift in Sources */,
+				D6DF38C771FFA5C0969C0516 /* LanguageCatalog.swift in Sources */,
 				D3FF624B8B9708BEE426ACAE /* IAPManager.swift in Sources */,
 				6258778052CEAC96382076E5 /* RecordingViewModel.swift in Sources */,
 				4D869C19E2F822AED52D4158 /* WhisperLive_iOS_ClientApp.swift in Sources */,
@@ -344,7 +277,6 @@
 /* Begin XCBuildConfiguration section */
 		148EE663F9837F9E5754FE2B /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 71A45B0DE57486A57A53B26D /* Pods-WhisperLive-iOS-ClientTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
@@ -362,7 +294,6 @@
 		};
 		436B52E834104DB0E11C2F0B /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 3761C8E1708F0AD023F150C5 /* Pods-WhisperLive-iOS-ClientTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
@@ -497,7 +428,6 @@
 		};
 		D717969E2AF142A6DDAE4D1E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 6FF448225B54F93D6189A13C /* Pods-WhisperLive-iOS-Client.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -518,7 +448,6 @@
 		};
 		ED7F20FCE7037F583C4AE45E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4CFADD483D9EBE2CDF2CF25C /* Pods-WhisperLive-iOS-Client.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";

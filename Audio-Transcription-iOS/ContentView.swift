@@ -11,9 +11,7 @@ import SwiftUI
 struct RecordingView: View {
     var onDismiss: () -> Void
     @StateObject private var recordingViewModel = AudioViewModel()
-    @StateObject private var iapManager = IAPManager()
     @State private var showSubmitView = false
-    @State private var showPremiumSheet = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -26,153 +24,66 @@ struct RecordingView: View {
                     .background(Color.orange)
             }
 
-            // Server config (only when not recording)
-            if !recordingViewModel.isRecording {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Server Configuration")
-                        .font(.headline)
-                    HStack {
-                        Text("Host:")
-                        TextField("localhost", text: $recordingViewModel.host)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                    }
-                    HStack {
-                        Text("Port:")
-                        TextField("9090", text: $recordingViewModel.port)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .keyboardType(.numberPad)
-                    }
-                }
-                .padding()
-                .background(Color.gray.opacity(0.1))
-                .cornerRadius(8)
-                .padding(.horizontal)
-                
-                // Translation controls
-                VStack(alignment: .leading, spacing: 8) {
-                    Toggle("Enable Translation", isOn: $recordingViewModel.enableTranslation)
-                        .toggleStyle(SwitchToggleStyle(tint: .blue))
-                        .disabled(!iapManager.isPremium())
-                    if recordingViewModel.enableTranslation {
-                        Picker("Target Language", selection: $recordingViewModel.targetLanguage) {
-                            Text("English").tag("en")
-                            Text("French").tag("fr")
-                            Text("Spanish").tag("es")
-                            Text("Hindi").tag("hi")
-                            Text("Japanese").tag("ja")
-                        }
-                        .pickerStyle(MenuPickerStyle())
-                        .disabled(!iapManager.isPremium())
-                    }
-                    if !iapManager.isPremium() {
-                        Text("Upgrade to Premium to enable translation")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                }
-                .padding()
-                .background(Color.gray.opacity(0.1))
-                .cornerRadius(8)
-                .padding(.horizontal)
+            VStack(spacing: 28) {
+                languageSelectionButton
 
-                // Premium Button (if not premium)
-                if iapManager.purchaseState != .purchased {
-                    Button("Go Premium") {
-                        showPremiumSheet = true
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .padding()
+                VStack(spacing: 12) {
+                    Text(recordingViewModel.timeLabel)
+                        .font(.system(size: 40, weight: .medium))
+                        .monospacedDigit()
+
+                    Text("Translating to \(recordingViewModel.selectedLanguageName)")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
                 }
+
+                Button(action: handlePrimaryButtonTap) {
+                    Text(recordingViewModel.isRecording ? "Stop" : "Start")
+                        .font(.system(size: 24, weight: .bold))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 56)
+                        .padding(.vertical, 20)
+                        .background(recordingViewModel.isRecording ? Color.red : Color.blue)
+                        .cornerRadius(18)
+                        .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 6)
+                }
+                .accessibilityIdentifier("primaryRecordingButton")
             }
+            .padding(.horizontal, 24)
+            .padding(.top, 32)
 
-            // Stop button (only visible when recording)
-            HStack {
-                Spacer()
-                if recordingViewModel.isRecording {
-                    Button("Stop Recording") {
-                        recordingViewModel.stopRecording()
-                        recordingViewModel.finalizeTranscription()
-                        showSubmitView = true
-                    }
-                    .font(.headline)
-                    .padding()
-                    .foregroundColor(.gray)
-                }
-            }
-
-            // Transcription display
             ScrollView {
-                VStack(spacing: 8) {
-                    ForEach(recordingViewModel.transcriptionList.indices, id: \.self) { index in
-                        Text(recordingViewModel.transcriptionList[index])
-                            .padding()
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(Color.gray.opacity(0.1))
-                            .cornerRadius(8)
-                            .font(.system(size: 14, weight: .semibold))
-                    }
+                VStack(spacing: 20) {
+                    TranscriptCardView(
+                        title: "Live Transcript",
+                        subtitle: "Real-time transcription",
+                        text: recordingViewModel.transcriptionText,
+                        placeholder: "Your words will appear here as you speak.",
+                        accent: Color.gray.opacity(0.2)
+                    )
+
+                    TranscriptCardView(
+                        title: "Translated Text",
+                        subtitle: recordingViewModel.selectedLanguageName,
+                        text: recordingViewModel.translationText,
+                        placeholder: "We are listening for speech to translate…",
+                        accent: Color.blue.opacity(0.18)
+                    )
                 }
-                .padding(.horizontal)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 32)
             }
-
-            if recordingViewModel.enableTranslation && !recordingViewModel.translatedList.isEmpty {
-                Divider()
-                Text("Translation (\(recordingViewModel.targetLanguage.uppercased()))")
-                    .font(.headline)
-                    .padding(.horizontal)
-                    .padding(.top)
-
-                ScrollView {
-                    VStack(spacing: 8) {
-                        ForEach(recordingViewModel.translatedList.indices, id: \.self) { index in
-                            Text(recordingViewModel.translatedList[index])
-                                .padding()
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(Color.blue.opacity(0.1))
-                                .cornerRadius(8)
-                                .font(.system(size: 14, weight: .semibold))
-                        }
-                    }
-                    .padding(.horizontal)
-                }
-            }
-
-            Divider().padding(.top, 8)
-
-            // Timer and Record/Pause/Resume button
-            VStack(spacing: 16) {
-                Text(recordingViewModel.timeLabel)
-                    .font(.system(size: 40))
-
-                Button(action: {
-                    if recordingViewModel.isRecording {
-                        recordingViewModel.isPaused
-                            ? recordingViewModel.resumeRecording()
-                            : recordingViewModel.pauseRecording()
-                    } else {
-                        recordingViewModel.startRecording()
-                    }
-                }) {
-                    Image(systemName: recordingViewModel.isRecording
-                          ? (recordingViewModel.isPaused ? "play.circle.fill" : "pause.circle.fill")
-                          : "mic.circle.fill")
-                        .font(.system(size: 50))
-                        .foregroundStyle(.black)
-                }
-            }
-            .padding(.bottom, 40)
         }
-        .padding(.top)
-        .background(Color(.systemBackground))
+        .background(Color(.systemGroupedBackground).ignoresSafeArea())
         .overlay(
             Group {
                 if recordingViewModel.isLoading {
                     ZStack {
-                        Color.black.opacity(0.4).ignoresSafeArea()
-                        ProgressView("Processing...")
+                        Color.black.opacity(0.3).ignoresSafeArea()
+                        LoadingProgressView(progress: $recordingViewModel.loadingProgress, stages: recordingViewModel.loadingStages)
                             .padding()
-                            .background(Color.white)
-                            .cornerRadius(10)
+                            .background(Color(.systemBackground))
+                            .cornerRadius(12)
                     }
                 }
             }
@@ -187,31 +98,146 @@ struct RecordingView: View {
                 }
             )
         }
-        .sheet(isPresented: $showPremiumSheet) {
-            VStack(spacing: 16) {
-                if let product = iapManager.products.first {
-                    Text("Unlock Premium for \(product.displayPrice)")
-                        .font(.headline)
-                    Button("Purchase") {
-                        iapManager.purchasePremium()
-                        showPremiumSheet = false
-                    }
-                    .buttonStyle(.borderedProminent)
-                    Button("Restore Purchases") {
-                        Task {
-                            await iapManager.restorePurchases()
-                        }
-                        showPremiumSheet = false
-                    }
-                    .buttonStyle(.bordered)
-                } else {
-                    ProgressView("Loading...")
+        .sheet(isPresented: $recordingViewModel.isLanguageSheetVisible) {
+            LanguageSelectionView(
+                selection: $recordingViewModel.translationSelection,
+                options: recordingViewModel.availableLanguages
+            )
+        }
+    }
+
+    private var languageSelectionButton: some View {
+        Button {
+            recordingViewModel.isLanguageSheetVisible = true
+        } label: {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Desired Language")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    Text(recordingViewModel.selectedLanguageName)
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primary)
                 }
-                Button("Cancel") {
-                    showPremiumSheet = false
-                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.headline)
+                    .foregroundColor(.secondary)
             }
             .padding()
+            .frame(maxWidth: .infinity)
+            .background(Color(.secondarySystemBackground))
+            .cornerRadius(18)
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func handlePrimaryButtonTap() {
+        if recordingViewModel.isRecording {
+            recordingViewModel.stopRecording()
+            recordingViewModel.finalizeTranscription()
+            showSubmitView = true
+        } else {
+            recordingViewModel.startRecording()
+        }
+    }
+}
+
+private struct TranscriptCardView: View {
+    let title: String
+    let subtitle: String
+    let text: String
+    let placeholder: String
+    let accent: Color
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(title)
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    Text(subtitle)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                Spacer()
+            }
+
+            if text.isEmpty {
+                Text(placeholder)
+                    .font(.body)
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding()
+                    .background(accent.opacity(0.35))
+                    .cornerRadius(14)
+            } else {
+                Text(text)
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundColor(.primary)
+                    .lineSpacing(6)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding()
+                    .background(accent)
+                    .cornerRadius(14)
+            }
+        }
+    }
+}
+
+private struct LanguageSelectionView: View {
+    @Binding var selection: String
+    let options: [LanguageOption]
+    @Environment(\.dismiss) private var dismiss
+    @State private var searchText: String = ""
+
+    private var filteredOptions: [LanguageOption] {
+        let trimmed = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return options }
+        return options.filter { option in
+            option.name.lowercased().contains(trimmed.lowercased()) ||
+            option.code.lowercased().contains(trimmed.lowercased())
+        }
+    }
+
+    var body: some View {
+        NavigationView {
+            List {
+                ForEach(filteredOptions) { option in
+                    Button {
+                        selection = option.code
+                        dismiss()
+                    } label: {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(option.name)
+                                    .foregroundColor(.primary)
+                                Text(option.code.uppercased())
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                            Spacer()
+                            if option.code == selection {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(.blue)
+                            }
+                        }
+                        .padding(.vertical, 6)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .listStyle(.insetGrouped)
+            .navigationTitle("Choose Language")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Close") { dismiss() }
+                }
+            }
+            .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
         }
     }
 }
@@ -260,6 +286,30 @@ struct FinalTranscriptView: View {
                     }
                 }
             }
+        }
+    }
+}
+
+private struct LoadingProgressView: View {
+    @Binding var progress: Double
+    let stages: [String]
+
+    var body: some View {
+        VStack(spacing: 16) {
+            ProgressView(value: progress)
+                .progressViewStyle(LinearProgressViewStyle(tint: .blue))
+            
+            let currentStageIndex = Int(progress * Double(stages.count - 1))
+            let currentStage = stages[min(currentStageIndex, stages.count - 1)]
+            let percentage = Int(progress * 100)
+            
+            Text("\(currentStage) (\(percentage)%)")
+                .font(.headline)
+                .foregroundColor(.primary)
+            
+            Text("Please wait while connecting...")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
         }
     }
 }
